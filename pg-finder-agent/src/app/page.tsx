@@ -47,6 +47,7 @@ interface Relaxation {
 
 export default function Home() {
   const [text, setText] = useState("");
+  const [selectedPrompt, setSelectedPrompt] = useState<number | null>(null);
   const [phase, setPhase] = useState<"home" | "agent">("home");
   const [running, setRunning] = useState(false);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
@@ -71,7 +72,12 @@ export default function Home() {
   const lastBody = useRef<AgentRequestBody | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const voice = useVoice(useCallback((t: string) => setText(t), []));
+  const voice = useVoice(
+    useCallback((t: string) => {
+      setText(t);
+      setSelectedPrompt(null);
+    }, [])
+  );
 
   const rankOf = useMemo(() => Object.fromEntries(ranked.map((r) => [r.listing.id, r.rank])), [ranked]);
 
@@ -231,6 +237,7 @@ export default function Home() {
   const rejectRelaxation = () => run({ ...(lastBody.current ?? { text }), strict: true });
 
   const appendFilter = (filterText: string) => {
+    setSelectedPrompt(null);
     setText((prev) => {
       const clean = prev.trim();
       return clean ? `${clean}, ${filterText}` : filterText;
@@ -274,7 +281,10 @@ export default function Home() {
               id="query-input"
               type="text"
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                setSelectedPrompt(null);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -411,21 +421,24 @@ export default function Home() {
         {/* Example Prompt Pills */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full max-w-5xl">
           {EXAMPLES.map((ex, i) => {
-            const isFirst = i === 0;
+            const isSelected = selectedPrompt === i || (selectedPrompt === null && text === ex.full && text.length > 0);
             return (
               <button
                 key={ex.full}
                 id={`example-${i}`}
                 type="button"
-                onClick={() => setText(ex.full)}
+                onClick={() => {
+                  setSelectedPrompt(i);
+                  setText(ex.full);
+                }}
                 className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-[13px] font-medium transition cursor-pointer shadow-xs truncate ${
-                  isFirst
+                  isSelected
                     ? "bg-[#1E5D4B] text-white hover:bg-[#16483A]"
                     : "bg-[#E8F2EC] text-[#475569] hover:bg-[#D9EBE0] border border-[#CBD5E1]"
                 }`}
               >
                 <svg
-                  className={`h-4 w-4 shrink-0 ${isFirst ? "text-white" : "text-[#1E5D4B]"}`}
+                  className={`h-4 w-4 shrink-0 ${isSelected ? "text-white" : "text-[#1E5D4B]"}`}
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
