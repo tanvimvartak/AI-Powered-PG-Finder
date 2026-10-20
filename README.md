@@ -11,3 +11,8 @@ npm run dev
 ```
 
 For the complete architectural guide, system prompt details, agent loop diagram, and test suite results, see [**pg-finder-agent/README.md**](./pg-finder-agent/README.md).
+
+### Vercel Deployment
+- **Root Directory**: `pg-finder-agent`
+- **Framework Preset**: Next.js
+
