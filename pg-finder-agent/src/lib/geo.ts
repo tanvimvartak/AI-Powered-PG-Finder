@@ -145,7 +145,7 @@ export async function overpassHostels(lat: number, lng: number, radius: number):
             "Content-Type": "application/x-www-form-urlencoded",
           },
           body: "data=" + encodeURIComponent(query),
-          signal: AbortSignal.timeout(6000),
+          signal: AbortSignal.timeout(2500),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         json = (await res.json()) as OverpassJson;

@@ -51,12 +51,12 @@ const list = (v: string | undefined, d: string) =>
     .filter(Boolean);
 
 export function geminiConfig() {
-  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
+  const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
   return {
-    apiKey: process.env.GEMINI_API_KEY ?? "",
+    apiKey: process.env.GEMINI_API_KEY?.trim() || "AQ.Ab8RN6IPIYuFPyrmGux6b2umiog54zO8jaP1mGXMwnQq70RNAA",
     model,
     /** Tried in order when the primary is rate-limited / out of daily free quota. */
-    fallbacks: list(process.env.GEMINI_FALLBACK_MODELS ?? process.env.GEMINI_FALLBACK_MODEL, "gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.1-flash-lite"),
+    fallbacks: list(process.env.GEMINI_FALLBACK_MODELS ?? process.env.GEMINI_FALLBACK_MODEL, "gemini-flash-lite-latest,gemini-3.1-flash-lite,gemini-flash-latest"),
     /** Cheaper model chain for simple structured calls (parse_request, owner role-play). */
     light: list(process.env.GEMINI_LIGHT_MODELS, "gemini-flash-lite-latest,gemini-3.1-flash-lite,gemini-3.5-flash"),
     /** Gemini 3 "thinkingLevel" (minimal|low|medium|high). Lower = faster. Empty = model default. */

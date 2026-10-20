@@ -56,7 +56,14 @@ const osmIcon = L.divIcon({
 function FitToRadius({ center, radius }: { center: { lat: number; lng: number } | null; radius: number }) {
   const map = useMap();
   useEffect(() => {
+    map.invalidateSize();
+    const t = setTimeout(() => map.invalidateSize(), 250);
+    return () => clearTimeout(t);
+  }, [map]);
+
+  useEffect(() => {
     if (!center) return;
+    map.invalidateSize();
     const bounds = L.latLng(center.lat, center.lng).toBounds(radius * 2.15);
     map.flyToBounds(bounds, { duration: 0.9, padding: [20, 20] });
   }, [center, radius, map]);

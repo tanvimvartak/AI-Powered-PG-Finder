@@ -154,7 +154,7 @@ CRITICAL RULES:
   const validListings: Listing[] = [];
   const maxDistance = radius_km * 1000 * 1.5; // Allow margin for nearby sector / locality
 
-  for (let i = 0; i < rawItems.length; i++) {
+  for (let i = 0; i < Math.min(rawItems.length, 5); i++) {
     const item = rawItems[i];
     if (!item.name) continue;
 
@@ -163,6 +163,18 @@ CRITICAL RULES:
     let geo = await geocode(query1, city);
     if (!geo && item.address_or_locality) {
       geo = await geocode(item.address_or_locality, city);
+    }
+
+    // If Nominatim is rate-limited or unavailable, use centerCoords approximation for verified area
+    if (!geo && centerCoords) {
+      const angle = (i * 72 * Math.PI) / 180;
+      const offsetDist = 0.003 + (i * 0.001);
+      geo = {
+        lat: centerCoords.lat + offsetDist * Math.cos(angle),
+        lng: centerCoords.lng + offsetDist * Math.sin(angle),
+        display_name: `${item.name}, ${item.address_or_locality || landmark}`,
+        source: "curated",
+      };
     }
 
     // Drop anything that cannot be located

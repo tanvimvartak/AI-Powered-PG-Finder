@@ -38,7 +38,7 @@ export async function searchGeoapify(
   lng: number,
   radius_m: number
 ): Promise<{ listings: Listing[]; skipped: boolean; error?: string }> {
-  const apiKey = process.env.GEOAPIFY_API_KEY?.trim();
+  const apiKey = process.env.GEOAPIFY_API_KEY?.trim() || "60bdb5381bc54b77b362c70acdfc66c4";
   if (!apiKey) {
     return { listings: [], skipped: true };
   }
