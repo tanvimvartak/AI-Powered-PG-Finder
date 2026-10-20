@@ -1,20 +1,23 @@
 @import "tailwindcss";
 
-/* ─────────────────────────── Design tokens ─────────────────────────── */
+/* ─────────────────────────── StayLocal Design tokens ─────────────────────────── */
 :root {
-  --bg: #0a0a16;
-  --bg-2: #11112a;
-  --panel: rgba(255, 255, 255, 0.045);
-  --panel-strong: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.09);
-  --text: #eceaf6;
-  --muted: #9a98b8;
-  --brand: #8b5cf6; /* violet */
-  --brand-2: #ec4899; /* pink */
-  --brand-3: #f59e0b; /* amber */
-  --ok: #34d399;
-  --warn: #fbbf24;
-  --bad: #f87171;
+  --bg: #FFF8F2;             /* Warm Beige: Main background and page sections */
+  --bg-card: #FFFFFF;        /* Crisp white card background */
+  --panel: #E8F2EC;          /* Leaf Mist: Search panels, filter chips, subtle highlights */
+  --panel-strong: #D9EBE0;   /* Slightly deeper Leaf Mist for hovers */
+  --border: #E5E7EB;         /* Border / Divider: clean, subtle */
+  --border-subtle: #D5E4DB;  /* Organic soft border matching Leaf Mist */
+  --text: #1F2937;           /* Charcoal: Headings and body text */
+  --muted: #64748B;          /* Slate: Secondary text, metadata */
+  --primary: #1E5D4B;        /* Deep Teal: Primary buttons, links, navigation */
+  --primary-hover: #16483A;
+  --secondary: #4F8F74;      /* Sage Green: Secondary buttons, icons, success states */
+  --accent: #F08A5D;         /* Terracotta: Price badges, favourite indicators, accents */
+  --accent-light: #FDEEE7;
+  --ok: #1E5D4B;
+  --warn: #E0A24B;
+  --bad: #DC2626;
 }
 
 @theme inline {
@@ -23,8 +26,9 @@
   --color-line: var(--border);
   --color-ink: var(--text);
   --color-muted: var(--muted);
-  --color-brand: var(--brand);
-  --color-brand2: var(--brand-2);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
@@ -41,84 +45,116 @@ body {
 body {
   font-family: var(--font-outfit), system-ui, sans-serif;
   min-height: 100dvh;
-  background:
-    radial-gradient(1100px 600px at 10% -10%, rgba(139, 92, 246, 0.22), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(236, 72, 153, 0.16), transparent 60%),
-    radial-gradient(800px 600px at 50% 120%, rgba(245, 158, 11, 0.1), transparent 60%),
-    var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 85% -5%, rgba(232, 242, 236, 0.85), transparent 60%),
+    radial-gradient(800px 400px at 10% 20%, rgba(253, 238, 231, 0.6), transparent 50%),
+    radial-gradient(1000px 600px at 50% 100%, rgba(232, 242, 236, 0.7), transparent 60%);
   background-attachment: fixed;
 }
 
 /* ─────────────────────────── Components ─────────────────────────── */
 @layer components {
   .glass {
-    background: var(--panel);
+    background: #FFFFFF;
     border: 1px solid var(--border);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    box-shadow: 0 4px 20px -2px rgba(30, 93, 75, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03);
     border-radius: 1.25rem;
   }
-  .gradient-text {
-    background: linear-gradient(90deg, #c4b5fd, #f9a8d4 50%, #fcd34d);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .glass-mist {
+    background: var(--panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.25rem;
   }
   .btn-primary {
-    background: linear-gradient(135deg, var(--brand), var(--brand-2));
-    color: white;
+    background: var(--primary);
+    color: #FFFFFF;
     font-weight: 600;
     border-radius: 9999px;
     padding: 0.7rem 1.4rem;
-    box-shadow: 0 8px 30px -8px rgba(236, 72, 153, 0.55);
+    box-shadow: 0 6px 18px -3px rgba(30, 93, 75, 0.35);
     transition:
       transform 0.15s ease,
       box-shadow 0.2s ease,
+      background-color 0.2s ease,
       opacity 0.2s;
   }
   .btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 12px 36px -8px rgba(236, 72, 153, 0.75);
+    box-shadow: 0 10px 24px -4px rgba(30, 93, 75, 0.45);
   }
   .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .btn-secondary {
+    background: var(--panel);
+    color: var(--primary);
+    font-weight: 600;
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    padding: 0.6rem 1.2rem;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .btn-secondary:hover {
+    background: var(--panel-strong);
+    color: var(--primary-hover);
+  }
   .btn-ghost {
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
+    background: #FFFFFF;
+    color: var(--text);
     border-radius: 9999px;
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     transition:
       background 0.2s,
-      border-color 0.2s;
+      border-color 0.2s,
+      color 0.2s;
   }
   .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: #F9FBFA;
+    border-color: var(--border-subtle);
+    color: var(--primary);
   }
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     border-radius: 9999px;
-    padding: 0.25rem 0.65rem;
+    padding: 0.3rem 0.75rem;
     font-size: 0.75rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--border);
+    font-weight: 500;
+    background: var(--panel);
+    border: 1px solid var(--border-subtle);
     color: var(--text);
     white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .chip:hover {
+    background: var(--panel-strong);
   }
   .badge-sample {
     font-size: 0.65rem;
+    font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 0.15rem 0.5rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 9999px;
-    background: rgba(245, 158, 11, 0.15);
-    color: #fcd34d;
-    border: 1px solid rgba(245, 158, 11, 0.35);
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid rgba(240, 138, 93, 0.4);
+  }
+  .badge-verified {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+    background: var(--panel);
+    color: var(--primary);
+    border: 1px solid var(--border-subtle);
   }
 }
 
@@ -129,7 +165,7 @@ body {
     opacity: 0.6;
   }
   100% {
-    transform: scale(2.2);
+    transform: scale(2.1);
     opacity: 0;
   }
 }
@@ -137,7 +173,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(236, 72, 153, 0.5);
+  background: rgba(79, 143, 116, 0.4);
   animation: pulse-ring 1.6s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
 }
 .mic-ring.delay {
@@ -159,7 +195,7 @@ body {
   height: 14px;
   margin: 0 1px;
   border-radius: 2px;
-  background: #f9a8d4;
+  background: var(--primary);
   animation: bar 0.9s ease-in-out infinite;
   transform-origin: bottom;
 }
@@ -195,14 +231,14 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: #E8F2EC;
 }
 .skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
   animation: shimmer 1.4s infinite;
 }
 
@@ -217,27 +253,27 @@ body {
   }
 }
 
-/* ─────────────────────────── Leaflet (dark tiles, OSM) ─────────────────────────── */
+/* ─────────────────────────── Leaflet (Clean Modern Light Tiles) ─────────────────────────── */
 .leaflet-container {
-  background: #0d0d1f;
+  background: #E8F2EC;
   font-family: inherit;
   border-radius: 1.25rem;
 }
-.dark-tiles .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(200deg) brightness(0.85) contrast(0.9) saturate(0.6);
-}
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  background: #17172e;
+  background: #FFFFFF;
   color: var(--text);
   border: 1px solid var(--border);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
 }
 .leaflet-control-attribution {
-  background: rgba(10, 10, 22, 0.7) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
   color: var(--muted) !important;
+  font-size: 10px !important;
 }
 .leaflet-control-attribution a {
-  color: #c4b5fd !important;
+  color: var(--primary) !important;
 }
 .pin {
   animation: pin-drop 0.4s ease both;
@@ -248,6 +284,6 @@ body {
   width: 6px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #CBD5E1;
   border-radius: 6px;
 }

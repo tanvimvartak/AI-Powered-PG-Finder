@@ -1,7 +1,7 @@
 "use client";
 /**
- * Live activity timeline: one row per agent step, expandable to show raw
- * tool inputs/outputs.
+ * Live activity timeline in StayLocal Modern Calm styling:
+ * one row per agent step, expandable to show raw tool inputs/outputs.
  */
 import { useState } from "react";
 
@@ -30,14 +30,14 @@ function Row({ item }: { item: TimelineItem }) {
   const hasRaw = item.input !== undefined || item.output !== undefined;
   const dot =
     item.kind === "relaxation"
-      ? "bg-amber-400"
+      ? "bg-[#F08A5D]"
       : item.status === "running"
-        ? "bg-violet-400 animate-pulse"
+        ? "bg-[#1E5D4B] animate-pulse"
         : item.status === "error" || item.kind === "error"
-          ? "bg-red-400"
+          ? "bg-[#DC2626]"
           : item.kind === "thought"
-            ? "bg-slate-500"
-            : "bg-emerald-400";
+            ? "bg-[#64748B]"
+            : "bg-[#1E5D4B]";
 
   return (
     <li className="fade-up relative pl-7">
@@ -51,25 +51,25 @@ function Row({ item }: { item: TimelineItem }) {
       >
         <div className="flex items-start gap-2">
           <span className="text-sm">{item.kind === "relaxation" ? "↔️" : item.kind === "thought" ? "💭" : (item.tool && ICON[item.tool]) || "⚙️"}</span>
-          <span className={`flex-1 text-sm leading-snug ${item.kind === "thought" ? "italic text-muted" : item.kind === "relaxation" ? "text-amber-200" : item.kind === "error" ? "text-red-300" : ""}`}>
+          <span className={`flex-1 text-sm leading-snug ${item.kind === "thought" ? "italic text-slate-500" : item.kind === "relaxation" ? "text-[#F08A5D] font-medium" : item.kind === "error" ? "text-red-600" : "text-slate-800"}`}>
             {item.label}
-            {item.status === "running" && <span className="ml-1 text-muted">⋯</span>}
+            {item.status === "running" && <span className="ml-1 text-slate-400">⋯</span>}
           </span>
-          {hasRaw && <span className="text-[10px] text-muted">{open ? "hide" : "raw"}</span>}
+          {hasRaw && <span className="text-[10px] text-slate-400 hover:text-slate-600">{open ? "hide" : "details"}</span>}
         </div>
       </button>
       {open && (
         <div className="mt-2 space-y-2 text-[11px]">
           {item.input !== undefined && (
             <div>
-              <div className="mb-1 font-semibold text-muted">→ {item.tool} input</div>
-              <pre className="thin-scroll max-h-40 overflow-auto rounded-lg bg-black/40 p-2 font-mono text-violet-200">{JSON.stringify(item.input, null, 2)}</pre>
+              <div className="mb-1 font-semibold text-slate-500">→ {item.tool} input</div>
+              <pre className="thin-scroll max-h-40 overflow-auto rounded-lg bg-[#E8F2EC] p-2 font-mono text-slate-800 border border-[#D5E4DB]">{JSON.stringify(item.input, null, 2)}</pre>
             </div>
           )}
           {item.output !== undefined && (
             <div>
-              <div className="mb-1 font-semibold text-muted">← output</div>
-              <pre className="thin-scroll max-h-56 overflow-auto rounded-lg bg-black/40 p-2 font-mono text-emerald-200">{JSON.stringify(item.output, null, 2)}</pre>
+              <div className="mb-1 font-semibold text-slate-500">← output</div>
+              <pre className="thin-scroll max-h-56 overflow-auto rounded-lg bg-[#E8F2EC] p-2 font-mono text-[#1E5D4B] border border-[#D5E4DB]">{JSON.stringify(item.output, null, 2)}</pre>
             </div>
           )}
         </div>
@@ -82,22 +82,22 @@ export default function Timeline({ items, running }: { items: TimelineItem[]; ru
   return (
     <section className="glass p-4" aria-label="Agent activity">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">Agent activity</h2>
+        <h2 className="text-xs font-bold tracking-wider text-slate-500 uppercase">Agent Activity</h2>
         {running ? (
-          <span className="chip text-violet-200">
-            <span className="h-1.5 w-1.5 animate-ping rounded-full bg-violet-400" /> working
+          <span className="chip bg-[#E8F2EC] text-[#1E5D4B]">
+            <span className="h-1.5 w-1.5 animate-ping rounded-full bg-[#1E5D4B]" /> searching
           </span>
         ) : items.length ? (
-          <span className="chip text-emerald-300">✓ done</span>
+          <span className="chip bg-[#E8F2EC] text-[#1E5D4B]">✓ complete</span>
         ) : null}
       </div>
-      <ol className="relative space-y-3 before:absolute before:top-1 before:bottom-1 before:left-[9px] before:w-px before:bg-white/10">
+      <ol className="relative space-y-3 before:absolute before:top-1 before:bottom-1 before:left-[9px] before:w-px before:bg-slate-200">
         {items.map((it) => (
           <Row key={it.id} item={it} />
         ))}
         {running && items.length === 0 && (
-          <li className="relative pl-7 text-sm text-muted">
-            <span className="absolute top-[7px] left-[5px] h-2.5 w-2.5 animate-pulse rounded-full bg-violet-400" /> Starting agent...
+          <li className="relative pl-7 text-sm text-slate-500">
+            <span className="absolute top-[7px] left-[5px] h-2.5 w-2.5 animate-pulse rounded-full bg-[#1E5D4B]" /> Starting agent...
           </li>
         )}
       </ol>

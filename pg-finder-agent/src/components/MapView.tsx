@@ -1,10 +1,10 @@
 "use client";
 /**
- * Leaflet + OpenStreetMap map (no Google Maps).
+ * Leaflet + OpenStreetMap map in clean Modern Calm Trustworthy styling.
  * - search radius circle with auto-fit zoom for any radius
- * - landmark marker
- * - listing pins colour-coded by price vs budget, dropping in live
- * - grey pins for OpenStreetMap (Overpass) hostels without price data
+ * - landmark marker in Deep Teal
+ * - listing pins colour-coded by price vs budget (Deep Teal, Terracotta, Red, Slate)
+ * - subtle slate pins for OpenStreetMap (Overpass) hostels without price data
  */
 import L from "leaflet";
 import { useEffect } from "react";
@@ -24,7 +24,6 @@ export interface MapViewProps {
   onSelect: (id: string) => void;
 }
 
-
 function pinIcon(color: string, label: string, selected: boolean) {
   const size = selected ? 38 : 30;
   return L.divIcon({
@@ -32,8 +31,8 @@ function pinIcon(color: string, label: string, selected: boolean) {
     iconSize: [size, size],
     iconAnchor: [size / 2, size],
     popupAnchor: [0, -size],
-    html: `<div class="pin" style="width:${size}px;height:${size}px;display:grid;place-items:center;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid ${selected ? "#fff" : "rgba(10,10,22,.8)"};box-shadow:0 4px 14px ${color}88">
-      <span style="transform:rotate(45deg);font:700 ${selected ? 13 : 11}px/1 Outfit,sans-serif;color:#0a0a16">${label}</span></div>`,
+    html: `<div class="pin" style="width:${size}px;height:${size}px;display:grid;place-items:center;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2.5px solid ${selected ? "#F08A5D" : "#FFFFFF"};box-shadow:0 4px 14px rgba(30,93,75,0.25)">
+      <span style="transform:rotate(45deg);font:700 ${selected ? 13 : 11}px/1 Outfit,sans-serif;color:#FFFFFF">${label}</span></div>`,
   });
 }
 
@@ -42,15 +41,15 @@ const landmarkIcon = L.divIcon({
   iconSize: [44, 44],
   iconAnchor: [22, 22],
   html: `<div style="position:relative;width:44px;height:44px;display:grid;place-items:center">
-    <span class="mic-ring" style="background:rgba(139,92,246,.45)"></span>
-    <div style="position:relative;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#8b5cf6,#ec4899);border:2px solid #fff;font-size:15px">🎓</div></div>`,
+    <span class="mic-ring" style="background:rgba(79,143,116,.35)"></span>
+    <div style="position:relative;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#1E5D4B;border:2.5px solid #FFFFFF;font-size:16px;box-shadow:0 4px 12px rgba(30,93,75,0.3)">🎓</div></div>`,
 });
 
 const osmIcon = L.divIcon({
   className: "",
   iconSize: [14, 14],
   iconAnchor: [7, 7],
-  html: `<div class="pin" style="width:14px;height:14px;border-radius:50%;background:#64748b;border:2px solid #cbd5e1"></div>`,
+  html: `<div class="pin" style="width:14px;height:14px;border-radius:50%;background:#64748B;border:2px solid #FFFFFF;box-shadow:0 2px 6px rgba(0,0,0,0.15)"></div>`,
 });
 
 /** Fit zoom to the radius circle whenever centre/radius changes. */
@@ -59,7 +58,7 @@ function FitToRadius({ center, radius }: { center: { lat: number; lng: number } 
   useEffect(() => {
     if (!center) return;
     const bounds = L.latLng(center.lat, center.lng).toBounds(radius * 2.15);
-    map.flyToBounds(bounds, { duration: 0.9, padding: [16, 16] });
+    map.flyToBounds(bounds, { duration: 0.9, padding: [20, 20] });
   }, [center, radius, map]);
   return null;
 }
@@ -76,26 +75,38 @@ function FocusSelected({ hit }: { hit: ListingHit | undefined }) {
 export default function MapView({ center, landmark, radius_m, hits, osm, budget, rankOf, selectedId, onSelect }: MapViewProps) {
   const fallback = { lat: 19.076, lng: 72.8777 }; // Mumbai
   return (
-    <MapContainer center={[fallback.lat, fallback.lng]} zoom={11} className="dark-tiles h-full w-full" zoomControl={false} scrollWheelZoom>
-      <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <MapContainer center={[fallback.lat, fallback.lng]} zoom={11} className="h-full w-full" zoomControl={false} scrollWheelZoom>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
       <FitToRadius center={center} radius={radius_m} />
       <FocusSelected hit={hits.find((h) => h.id === selectedId)} />
       {center && (
         <>
-          <Circle center={[center.lat, center.lng]} radius={radius_m} pathOptions={{ color: "#a78bfa", weight: 1.5, fillColor: "#8b5cf6", fillOpacity: 0.08, dashArray: "6 6" }} />
+          <Circle
+            center={[center.lat, center.lng]}
+            radius={radius_m}
+            pathOptions={{ color: "#1E5D4B", weight: 2, fillColor: "#1E5D4B", fillOpacity: 0.08, dashArray: "6 6" }}
+          />
           <Marker position={[center.lat, center.lng]} icon={landmarkIcon} zIndexOffset={1000}>
-            <Popup>{landmark ?? "Landmark"}</Popup>
+            <Popup>
+              <div className="font-semibold text-slate-800">{landmark ?? "Landmark"}</div>
+              <div className="text-xs text-slate-500">Search centre</div>
+            </Popup>
           </Marker>
         </>
       )}
       {osm.map((p) => (
         <Marker key={p.id} position={[p.lat, p.lng]} icon={osmIcon}>
           <Popup>
-            <b>{p.name}</b>
+            <b className="text-slate-800">{p.name}</b>
             <br />
-            OpenStreetMap {p.kind.replace("_", " ")} · {(p.distance_m / 1000).toFixed(1)} km
+            <span className="text-xs text-slate-600">
+              OpenStreetMap {p.kind.replace("_", " ")} · {(p.distance_m / 1000).toFixed(1)} km
+            </span>
             <br />
-            <i>No price info (unverified)</i>
+            <i className="text-xs text-slate-400">No price info listed</i>
           </Popup>
         </Marker>
       ))}
@@ -111,23 +122,27 @@ export default function MapView({ center, landmark, radius_m, hits, osm, budget,
             eventHandlers={{ click: () => onSelect(h.id) }}
           >
             <Popup>
-              <b>{h.name}</b>
-              <br />
-              {isUnknown ? (
-                <span style={{ color: "#cbd5e1" }}>Price not listed (ask owner)</span>
-              ) : (
-                <span>Rs {h.monthly_rent?.toLocaleString("en-IN")}/mo</span>
-              )}
-              {" · "}
-              {(h.distance_m / 1000).toFixed(2)} km
-              <br />
-              {h.is_sample ? (
-                <span style={{ color: "#fcd34d" }}>Sample data</span>
-              ) : (
-                <span style={{ color: "#93c5fd" }}>
-                  Source: {h.sources.map((s) => s.name).join(", ")} (unverified)
-                </span>
-              )}
+              <div className="space-y-1">
+                <b className="text-sm font-semibold text-slate-900">{h.name}</b>
+                <div className="text-xs text-slate-600">
+                  {isUnknown ? (
+                    <span className="font-medium text-slate-600">Price not listed (ask owner)</span>
+                  ) : (
+                    <span className="font-bold text-[#1E5D4B]">₹{h.monthly_rent?.toLocaleString("en-IN")}/mo</span>
+                  )}
+                  {" · "}
+                  {(h.distance_m / 1000).toFixed(2)} km
+                </div>
+                <div>
+                  {h.is_sample ? (
+                    <span className="badge-sample">Sample data</span>
+                  ) : (
+                    <span className="text-[11px] text-slate-500">
+                      Source: {h.sources.map((s) => s.name).join(", ")}
+                    </span>
+                  )}
+                </div>
+              </div>
             </Popup>
           </Marker>
         );

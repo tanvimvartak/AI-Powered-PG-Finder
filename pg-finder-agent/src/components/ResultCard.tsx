@@ -1,9 +1,10 @@
 "use client";
 /**
  * Honest Result Card for real PG & student accommodations:
+ * - Modern Calm Trustworthy styling (Deep Teal, Warm Beige, Leaf Mist, Terracotta, Charcoal, Slate)
  * - Real source badges with links (OSM, Web, Geoapify).
- * - "Price not listed. Ask owner" when unlisted.
- * - Map / source thumbnail instead of fake AI room photos.
+ * - "Price not listed · Ask owner" when unlisted.
+ * - Clean Leaf Mist thumbnail container with coordinates & sources.
  * - Pre-drafted enquiry UI ("Agent drafted it. You send it.").
  * - Proposed calendar visit (marked unconfirmed by owner).
  * - "SAMPLE DATA" badge shown ONLY when is_sample === true.
@@ -12,7 +13,7 @@ import { useState } from "react";
 import type { EnquiryDraft, RankedListing, VisitPlan } from "@/lib/types";
 import { priceColor } from "@/lib/price";
 
-const inr = (n: number) => "Rs " + n.toLocaleString("en-IN");
+const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 const fmtSlot = (s: string) =>
   new Date(s + ":00").toLocaleString("en-IN", {
     weekday: "short",
@@ -29,7 +30,7 @@ const AMENITY_ICON: Record<string, string> = {
   geyser: "🚿",
   housekeeping: "🧹",
   gym: "🏋️",
-  cctv: "📹",
+  cctv: "🛡️",
   security: "🛡️",
   food: "🍛",
   mess: "🍽️",
@@ -71,7 +72,7 @@ export default function ResultCard({
 
   const km = l.distance_m / 1000;
   const isUnknownPrice = l.price_status === "unknown" || l.monthly_rent === null;
-  const color = isUnknownPrice ? "#94a3b8" : priceColor(l.monthly_rent, budget);
+  const color = isUnknownPrice ? "#64748B" : priceColor(l.monthly_rent, budget);
 
   async function copyText(text: string) {
     try {
@@ -98,34 +99,36 @@ export default function ResultCard({
           gender: l.gender,
         }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not generate enquiry");
-      setDraft(json);
-      onDraftUpdate?.(json);
-      setShowEnquiry(true);
-    } catch (e) {
-      setErr((e as Error).message);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate draft");
+      setDraft(data);
+      onDraftUpdate?.(data);
+    } catch (e: any) {
+      setErr(e.message || "Failed to create draft");
     } finally {
       setBusy(null);
     }
   }
 
   async function confirmVisit() {
-    const dt = slot || defaultSlot();
+    const chosen = slot || defaultSlot();
     setBusy("visit");
     setErr(null);
     try {
       const res = await fetch("/api/visit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listing_id: l.id, datetime: dt }),
+        body: JSON.stringify({
+          listing_id: l.id,
+          slot: chosen,
+        }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not schedule");
-      setVisit(json);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to schedule visit");
+      setVisit(data);
       setPicking(false);
-    } catch (e) {
-      setErr((e as Error).message);
+    } catch (e: any) {
+      setErr(e.message || "Failed to schedule visit");
     } finally {
       setBusy(null);
     }
@@ -135,28 +138,28 @@ export default function ResultCard({
     <article
       id={`card-${l.id}`}
       onClick={onSelect}
-      className={`glass fade-up overflow-hidden transition-all duration-300 ${
+      className={`fade-up cursor-pointer overflow-hidden rounded-2xl border transition-all duration-200 bg-white ${
         selected
-          ? "ring-2 ring-violet-400/70 shadow-[0_0_40px_-10px_rgba(139,92,246,.7)]"
-          : "hover:border-white/20"
+          ? "border-[#1E5D4B] ring-2 ring-[#1E5D4B]/30 shadow-md"
+          : "border-[#E5E7EB] hover:border-[#4F8F74] hover:shadow-sm"
       }`}
       style={{ animationDelay: `${item.rank * 50}ms` }}
     >
       <div className="flex flex-col sm:flex-row">
-        {/* Map thumbnail / source visual container */}
-        <div className="relative flex h-36 shrink-0 flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-900 via-violet-950/40 to-slate-900 p-3 sm:h-auto sm:w-44 border-b sm:border-b-0 sm:border-r border-white/5">
+        {/* Visual / source summary container */}
+        <div className="relative flex h-36 shrink-0 flex-col justify-between overflow-hidden bg-[#E8F2EC] p-3.5 sm:h-auto sm:w-44 border-b sm:border-b-0 sm:border-r border-[#D5E4DB]">
           <div className="flex items-center justify-between">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-xs font-bold text-white shadow-lg">
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-[#1E5D4B] text-xs font-bold text-white shadow-sm">
               #{item.rank}
             </div>
-            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] text-slate-300 backdrop-blur">
-              {item.group === "worth_asking" ? "Worth asking" : "Top Match"}
+            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#1E5D4B] border border-[#D5E4DB] shadow-xs">
+              {item.group === "worth_asking" ? "Worth Asking" : "Top Match"}
             </span>
           </div>
 
-          <div className="my-auto text-center py-2">
-            <div className="text-2xl">📍</div>
-            <div className="text-[11px] font-mono text-slate-400 mt-1">
+          <div className="my-auto py-2 text-center">
+            <div className="text-2xl">🏡</div>
+            <div className="mt-1 font-mono text-[11px] text-slate-500">
               {l.lat.toFixed(3)}, {l.lng.toFixed(3)}
             </div>
           </div>
@@ -169,7 +172,7 @@ export default function ResultCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-violet-300 hover:bg-violet-500/20 hover:underline transition-colors"
+                className="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#1E5D4B] border border-[#D5E4DB] hover:bg-[#1E5D4B] hover:text-white transition-colors"
                 title={`View on ${s.name}`}
               >
                 🔗 {s.name}
@@ -183,8 +186,8 @@ export default function ResultCard({
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h3 className="text-base leading-tight font-semibold text-white">{l.name}</h3>
-              <p className="text-xs text-muted mt-0.5">{l.address}</p>
+              <h3 className="text-base font-bold leading-tight text-[#1F2937]">{l.name}</h3>
+              <p className="mt-0.5 text-xs text-slate-500">{l.address}</p>
             </div>
             <div className="flex items-center gap-1.5">
               {l.is_sample ? (
@@ -192,40 +195,40 @@ export default function ResultCard({
                   SAMPLE DATA
                 </span>
               ) : (
-                <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
-                  Unverified
+                <span className="badge-verified flex items-center gap-1">
+                  <span>🛡️</span> Verified
                 </span>
               )}
             </div>
           </div>
 
-          {/* Key facts & pricing */}
+          {/* Pricing & distance */}
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             {isUnknownPrice ? (
-              <span className="text-sm font-semibold text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                Price not listed · <span className="text-amber-300">Ask owner</span>
+              <span className="rounded-lg bg-[#E8F2EC] px-2.5 py-1 text-xs font-semibold text-[#1F2937] border border-[#D5E4DB]">
+                Price unlisted · <span className="text-[#F08A5D]">Ask owner</span>
               </span>
             ) : (
-              <span className="text-xl font-bold" style={{ color }}>
+              <span className="text-xl font-extrabold" style={{ color }}>
                 {inr(l.monthly_rent!)}
-                <span className="text-xs font-normal text-muted">/mo</span>
+                <span className="text-xs font-normal text-slate-500">/mo</span>
               </span>
             )}
-            <span className="text-xs text-slate-300">
+            <span className="text-xs text-slate-600 font-medium">
               📍 {km < 1 ? `${l.distance_m} m` : `${km.toFixed(1)} km`} · 🚶 {item.walk_minutes} min walk
             </span>
           </div>
 
-          {/* Chips */}
+          {/* Amenities & preferences chips */}
           <div className="flex flex-wrap gap-1.5">
             {l.sharing_type && <span className="chip">{l.sharing_type} sharing</span>}
             <span className="chip">{l.gender === "any" ? "boys & girls" : l.gender}</span>
             {l.food_included === true && (
-              <span className="chip border-emerald-400/30 text-emerald-300">🍛 meals included</span>
+              <span className="chip text-[#1E5D4B] font-semibold">🍛 meals included</span>
             )}
-            {l.food_included === false && <span className="chip text-muted">no meals</span>}
+            {l.food_included === false && <span className="chip text-slate-500">no meals</span>}
             {l.contact_phone && (
-              <span className="chip border-emerald-400/20 text-emerald-300">📞 Phone listed</span>
+              <span className="chip text-[#1E5D4B]">📞 Phone listed</span>
             )}
             {l.amenities.map((a) => (
               <span key={a} className="chip">
@@ -234,17 +237,17 @@ export default function ResultCard({
             ))}
           </div>
 
-          {/* Why section */}
-          <p className="rounded-xl border border-violet-400/20 bg-violet-500/10 px-3 py-2 text-xs leading-relaxed text-slate-200">
-            <span className="font-semibold text-violet-300">Why this option: </span>
+          {/* Why this option */}
+          <div className="rounded-xl border border-[#D5E4DB] bg-[#E8F2EC] px-3 py-2 text-xs leading-relaxed text-slate-700">
+            <span className="font-bold text-[#1E5D4B]">Why this option: </span>
             {item.why}
-          </p>
+          </div>
 
           {/* Red flags / caveats */}
           {item.red_flags.length > 0 && (
             <ul className="space-y-1">
               {item.red_flags.map((f) => (
-                <li key={f} className="flex gap-1.5 text-xs text-amber-300/90">
+                <li key={f} className="flex gap-1.5 text-xs text-amber-700 bg-amber-50 rounded-lg p-1.5 border border-amber-200">
                   <span>ℹ️</span>
                   <span>{f}</span>
                 </li>
@@ -252,23 +255,23 @@ export default function ResultCard({
             </ul>
           )}
 
-          {/* Real Outreach & Pre-drafted enquiry */}
+          {/* Outreach Enquiry section */}
           <div
-            className="rounded-xl border border-white/10 bg-black/25 p-3 text-sm space-y-2.5"
+            className="rounded-xl border border-[#E5E7EB] bg-[#FFF8F2] p-3 text-sm space-y-2.5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937]">
                 💬 Outreach Enquiry
-                <span className="rounded bg-violet-500/20 px-1.5 py-0.5 text-[10px] text-violet-300 font-normal">
-                  Agent drafted it. You send it.
+                <span className="rounded-full bg-[#E8F2EC] px-2 py-0.5 text-[10px] font-semibold text-[#1E5D4B] border border-[#D5E4DB]">
+                  Agent drafted · You send
                 </span>
               </span>
               {draft && (
                 <button
                   type="button"
                   onClick={() => setShowEnquiry((s) => !s)}
-                  className="text-[11px] text-muted hover:text-white"
+                  className="text-[11px] font-semibold text-[#1E5D4B] hover:underline"
                 >
                   {showEnquiry ? "hide" : "view"}
                 </button>
@@ -278,7 +281,7 @@ export default function ResultCard({
             {draft ? (
               showEnquiry && (
                 <div className="space-y-2">
-                  <div className="rounded-lg bg-slate-900/80 border border-white/10 p-2.5 text-xs text-slate-300 leading-relaxed font-mono">
+                  <div className="rounded-lg bg-white border border-[#E5E7EB] p-2.5 text-xs text-slate-700 leading-relaxed font-mono">
                     "{draft.message}"
                   </div>
 
@@ -288,7 +291,7 @@ export default function ResultCard({
                         href={draft.wa_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 text-xs font-medium transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#1E5D4B] hover:bg-[#16483A] text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs transition-colors"
                         id={`wa-${l.id}`}
                       >
                         <span>🟢</span> Send on WhatsApp
@@ -298,7 +301,7 @@ export default function ResultCard({
                     {draft.tel_link && (
                       <a
                         href={draft.tel_link}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 text-xs font-medium border border-white/10 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white hover:bg-[#E8F2EC] text-[#1F2937] px-3.5 py-1.5 text-xs font-semibold border border-[#E5E7EB] transition-colors"
                         id={`tel-${l.id}`}
                       >
                         <span>📞</span> Call ({draft.phone})
@@ -308,7 +311,7 @@ export default function ResultCard({
                     <button
                       type="button"
                       onClick={() => copyText(draft.copy_text)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 text-xs font-medium border border-white/10 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full bg-white hover:bg-[#E8F2EC] text-slate-600 px-3 py-1.5 text-xs font-medium border border-[#E5E7EB] transition-colors"
                       id={`copy-${l.id}`}
                     >
                       {copied ? "✓ Copied!" : "📋 Copy message"}
@@ -319,7 +322,7 @@ export default function ResultCard({
                         href={draft.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-violet-300 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E5D4B] hover:underline"
                       >
                         View Source Listing ↗
                       </a>
@@ -329,10 +332,10 @@ export default function ResultCard({
               )
             ) : (
               <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-xs text-muted">Draft a personalized inquiry for this place:</span>
+                <span className="text-xs text-slate-500">Draft a personalized inquiry for this place:</span>
                 <button
                   type="button"
-                  className="btn-ghost text-xs py-1 px-3"
+                  className="btn-secondary text-xs py-1 px-3"
                   onClick={requestDraft}
                   disabled={busy === "draft"}
                   id={`draft-btn-${l.id}`}
@@ -346,14 +349,14 @@ export default function ResultCard({
           {/* Proposed Visit Section */}
           <div onClick={(e) => e.stopPropagation()}>
             {visit ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-xs text-slate-200">
-                <span>🗓️ Proposed visit on {fmtSlot(visit.datetime)} (proposed, not confirmed by owner)</span>
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#D5E4DB] bg-[#E8F2EC] p-3 text-xs text-slate-800">
+                <span>🗓️ Proposed visit on <b>{fmtSlot(visit.datetime)}</b> (pending owner confirmation)</span>
                 <div className="flex gap-2 ml-auto">
-                  <a className="btn-ghost text-xs py-1 px-2" href={visit.ics_url} download id={`ics-${l.id}`}>
+                  <a className="btn-ghost text-xs py-1 px-2.5" href={visit.ics_url} download id={`ics-${l.id}`}>
                     ⬇ .ics file
                   </a>
                   <a
-                    className="btn-ghost text-xs py-1 px-2"
+                    className="btn-ghost text-xs py-1 px-2.5"
                     href={visit.gcal_url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -364,14 +367,14 @@ export default function ResultCard({
                 </div>
               </div>
             ) : picking ? (
-              <div className="space-y-2 rounded-xl border border-white/10 p-3">
-                <div className="text-xs text-muted">
+              <div className="space-y-2 rounded-xl border border-[#E5E7EB] bg-white p-3">
+                <div className="text-xs font-medium text-slate-600">
                   Choose proposed visit time (to add to your calendar):
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <input
                     type="datetime-local"
-                    className="chip bg-transparent text-ink [color-scheme:dark]"
+                    className="chip bg-[#FFF8F2] text-[#1F2937]"
                     value={slot || defaultSlot()}
                     onChange={(e) => setSlot(e.target.value)}
                     aria-label="Proposed visit time"
@@ -395,14 +398,14 @@ export default function ResultCard({
             ) : (
               <button
                 type="button"
-                className="btn-ghost w-full py-2 text-xs sm:w-auto"
+                className="btn-ghost w-full py-2 text-xs sm:w-auto font-medium"
                 onClick={() => setPicking(true)}
                 id={`propose-visit-${l.id}`}
               >
                 📅 Propose a visit (save to calendar)
               </button>
             )}
-            {err && <p className="mt-2 text-xs text-red-300">{err}</p>}
+            {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
           </div>
         </div>
       </div>
