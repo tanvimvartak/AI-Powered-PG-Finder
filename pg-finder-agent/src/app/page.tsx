@@ -9,6 +9,7 @@
  */
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useRef, useState } from "react";
+import ApartmentIllustration from "@/components/ApartmentIllustration";
 import ParamChips from "@/components/ParamChips";
 import ResultCard from "@/components/ResultCard";
 import Timeline, { type TimelineItem } from "@/components/Timeline";
@@ -22,11 +23,18 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 });
 
 const EXAMPLES = [
-  "Please find me a PG accommodation near Mithibai college within 1 km radius. My budget is Rs 5,000 and I need the accommodation in 5 days",
-  "Girls PG near Andheri station, walking distance, under 6k",
-  "PG near Fergusson College Pune within 2 km, budget 8000",
-  "Student PG near Christ University Bengaluru within 1.5 km",
-  "Mithibai ke paas 5000 mein PG chahiye",
+  {
+    display: "Please find me a PG accommodation near Mithibai college within 1 km ...",
+    full: "Please find me a PG accommodation near Mithibai college within 1 km radius. My budget is Rs 5,000 and I need the accommodation in 5 days",
+  },
+  {
+    display: "PG near Fergusson College Pune within 2 km...",
+    full: "PG near Fergusson College Pune within 2 km, budget 8000",
+  },
+  {
+    display: "Girls PG near Andheri station...",
+    full: "Girls PG near Andheri station, walking distance, under 6k",
+  },
 ];
 
 interface Relaxation {
@@ -213,7 +221,11 @@ export default function Home() {
     [handleEvent, voice],
   );
 
-  const submit = () => run({ text });
+  const DEFAULT_QUERY = "Girls PG near Andheri station, walking distance, under 6k";
+  const submit = () => {
+    const queryText = text.trim() || DEFAULT_QUERY;
+    run({ text: queryText });
+  };
   const rerun = (overrides: AgentRequestBody["overrides"]) => run({ text: lastBody.current?.text ?? text, overrides });
   const rejectRelaxation = () => run({ ...(lastBody.current ?? { text }), strict: true });
 
@@ -227,161 +239,209 @@ export default function Home() {
   // ───────────────────────────── HOME STATE ─────────────────────────────
   if (phase === "home") {
     return (
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-4 py-12">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#E8F2EC] px-3.5 py-1 text-xs font-black text-[#1E5D4B] border-1.5 border-[#B7D5C4]">
-          <span className="h-2 w-2 rounded-full bg-[#1E5D4B]" /> AI agent · free · OpenStreetMap
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-4 py-8 sm:py-12">
+        {/* Top Header Section: Title on Left, Illustration on Right */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 w-full mb-7">
+          <div className="flex-1 text-left">
+            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-black tracking-tight text-[#1F2937] leading-[1.12]">
+              Find your <span className="text-[#1E5D4B]">PG</span>
+              <br />
+              in one sentence.
+            </h1>
+            <p className="mt-3.5 max-w-xl text-sm sm:text-base font-normal text-[#475569] leading-relaxed">
+              Say where, how far, your budget and when. The agent searches, ranks, messages owners and books a visit.{" "}
+              <b className="font-bold text-[#1E5D4B]">No forms.</b>
+            </p>
+          </div>
+
+          <div className="shrink-0 w-full sm:w-auto flex justify-center md:justify-end">
+            <ApartmentIllustration className="w-64 sm:w-76 md:w-[320px] lg:w-[360px] h-auto drop-shadow-xs" />
+          </div>
         </div>
 
-        <h1 className="text-center text-4xl sm:text-6xl font-black tracking-tight text-[#1F2937] leading-[1.15]">
-          Find your <span className="text-[#1E5D4B]">PG</span>
-          <br /> in one sentence.
-        </h1>
+        {/* Floating Search Card */}
+        <div className="w-full rounded-2xl sm:rounded-3xl bg-white p-5 sm:p-6 shadow-[0_4px_24px_rgba(30,93,75,0.06)] border border-[#E2E8F0]">
+          {/* Row 1: Location Input */}
+          <div className="flex items-center gap-3.5 pb-4">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-[#E8F2EC] text-[#1E5D4B]">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <input
+              id="query-input"
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
+              placeholder="Girls PG near Andheri station, walking distance, under 6k"
+              className="w-full bg-transparent text-base sm:text-lg font-semibold text-[#1F2937] outline-none placeholder:text-[#1F2937] placeholder:font-semibold"
+              aria-label="Describe the PG you need"
+            />
+          </div>
 
-        <p className="mt-4 max-w-xl text-center text-sm sm:text-base font-semibold text-[#334155] leading-relaxed">
-          Say where, how far, your budget and when. The agent searches, ranks, messages owners and books a visit.{" "}
-          <b className="text-[#1F2937] font-black">No forms.</b>
-        </p>
+          {/* Row 2: Voice & Submit Button */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#F1F5F3] pt-4 pb-4">
+            <div className="flex items-center gap-3 flex-1 min-w-[220px]">
+              <button
+                id="mic-btn"
+                type="button"
+                onClick={() => (voice.listening ? voice.stop() : voice.start(text))}
+                disabled={voice.supported === false}
+                className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-[#E8F2EC] text-[#1E5D4B] hover:bg-[#D9EBE0] transition shadow-xs disabled:opacity-40 cursor-pointer"
+                aria-label={voice.listening ? "Stop listening" : "Speak your request"}
+                title={voice.supported === false ? "Voice not supported in this browser, please type" : "Speak (English / Hinglish)"}
+              >
+                {voice.listening && (
+                  <>
+                    <span className="mic-ring" />
+                    <span className="mic-ring delay" />
+                  </>
+                )}
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v1a7 7 0 0 1-14 0v-1" />
+                  <line x1="12" y1="18" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </button>
 
-        {/* Focused Search Box */}
-        <div className="mt-8 w-full rounded-2xl border-2 border-[#CBD5E1] bg-white p-4 shadow-md transition-shadow">
-          <textarea
-            id="query-input"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                submit();
-              }
-            }}
-            rows={3}
-            placeholder={
-              voice.listening
-                ? "Listening... speak your request now"
-                : "e.g. PG near Mithibai college within 1 km, budget Rs 5,000, need it in 5 days"
-            }
-            className="w-full resize-none bg-transparent px-2 py-1 text-base sm:text-lg font-bold text-[#1F2937] outline-none placeholder:text-slate-400 placeholder:font-normal"
-            aria-label="Describe the PG you need"
-          />
-
-          <div className="flex items-center gap-3 px-1 pt-2 border-t border-[#E2E8F0]">
-            <button
-              id="mic-btn"
-              type="button"
-              onClick={() => (voice.listening ? voice.stop() : voice.start(text))}
-              disabled={voice.supported === false}
-              className="relative grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#E8F2EC] border-2 border-[#1E5D4B] text-xl text-[#1E5D4B] hover:bg-[#D9EBE0] shadow-sm transition disabled:opacity-40"
-              aria-label={voice.listening ? "Stop listening" : "Speak your request"}
-              title={voice.supported === false ? "Voice not supported in this browser, please type" : "Speak (English / Hinglish)"}
-            >
-              {voice.listening && (
-                <>
-                  <span className="mic-ring" />
-                  <span className="mic-ring delay" />
-                </>
-              )}
-              <span className="relative">{voice.listening ? "■" : "🎙️"}</span>
-            </button>
-
-            <div className="flex-1 text-xs font-bold text-[#1F2937]">
-              {voice.listening ? (
-                <span className="flex items-center gap-2 text-[#1E5D4B]">
-                  <span className="eq">
-                    <span />
-                    <span />
-                    <span />
-                    <span />
+              <span className="text-xs sm:text-sm font-medium text-[#64748B]">
+                {voice.listening ? (
+                  <span className="text-[#1E5D4B] font-semibold flex items-center gap-2">
+                    <span className="eq"><span /><span /><span /><span /></span>
+                    Listening (en-IN)... speak now
                   </span>
-                  Listening (en-IN)... speak now
-                </span>
-              ) : voice.error ? (
-                <span className="text-amber-700 font-extrabold">{voice.error}</span>
-              ) : voice.supported === false ? (
-                <span className="text-[#334155]">Voice input isn't supported here. Just type.</span>
-              ) : (
-                <span className="text-[#334155]">Tap mic to speak, or type. Press Enter to send.</span>
-              )}
+                ) : voice.error ? (
+                  <span className="text-amber-700 font-semibold">{voice.error}</span>
+                ) : (
+                  "Tap the mic to speak, or type. Enter to send."
+                )}
+              </span>
             </div>
 
             <button
               id="send-btn"
               type="button"
               onClick={submit}
-              disabled={!text.trim()}
-              className="bg-[#1E5D4B] hover:bg-[#16483A] text-white font-black rounded-full px-6 py-2.5 text-sm shadow-md transition disabled:bg-[#A3BFB7] disabled:cursor-not-allowed cursor-pointer"
+              className="inline-flex items-center justify-center rounded-full bg-[#1E5D4B] hover:bg-[#16483A] px-6 py-2.5 text-sm font-semibold text-white shadow-xs transition cursor-pointer"
             >
               Find PGs →
             </button>
           </div>
 
-          {/* High-Contrast Quick Filters */}
-          <div className="mt-4 flex flex-wrap items-center gap-2 pt-2 border-t border-[#E2E8F0]">
-            <span className="text-xs font-black text-[#1F2937] mr-1">Quick Filters:</span>
+          {/* Row 3: Quick Filters */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 border-t border-[#F1F5F3] pt-4">
+            <span className="text-xs font-semibold text-[#1F2937] mr-1">Quick Filters:</span>
             <button
               type="button"
               onClick={() => appendFilter("near college")}
-              className="rounded-full bg-white hover:bg-[#E8F2EC] border-2 border-[#1E5D4B] px-3.5 py-1 text-xs font-black text-[#1F2937] shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] hover:bg-[#D9EBE0] px-3.5 py-1.5 text-xs font-semibold text-[#1E5D4B] transition cursor-pointer"
             >
-              🎓 Near College
+              <svg className="w-3.5 h-3.5 shrink-0 text-[#1E5D4B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+              </svg>
+              Near College
             </button>
             <button
               type="button"
               onClick={() => appendFilter("girls only")}
-              className="rounded-full bg-white hover:bg-[#E8F2EC] border-2 border-[#1E5D4B] px-3.5 py-1 text-xs font-black text-[#1F2937] shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] hover:bg-[#D9EBE0] px-3.5 py-1.5 text-xs font-semibold text-[#1E5D4B] transition cursor-pointer"
             >
-              👩 Girls Only
+              <svg className="w-3.5 h-3.5 shrink-0 text-[#1E5D4B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="5" />
+                <path d="M12 13v8" />
+                <path d="M9 18h6" />
+              </svg>
+              Girls Only
             </button>
             <button
               type="button"
               onClick={() => appendFilter("under Rs 8000")}
-              className="rounded-full bg-white hover:bg-[#E8F2EC] border-2 border-[#1E5D4B] px-3.5 py-1 text-xs font-black text-[#1F2937] shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] hover:bg-[#D9EBE0] px-3.5 py-1.5 text-xs font-semibold text-[#1E5D4B] transition cursor-pointer"
             >
-              💰 Under ₹8k
+              <span className="font-bold text-xs text-[#1E5D4B] leading-none shrink-0">₹</span>
+              Under ₹8k
             </button>
             <button
               type="button"
               onClick={() => appendFilter("fully furnished")}
-              className="rounded-full bg-white hover:bg-[#E8F2EC] border-2 border-[#1E5D4B] px-3.5 py-1 text-xs font-black text-[#1F2937] shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] hover:bg-[#D9EBE0] px-3.5 py-1.5 text-xs font-semibold text-[#1E5D4B] transition cursor-pointer"
             >
-              🛋️ Fully Furnished
+              <svg className="w-3.5 h-3.5 shrink-0 text-[#1E5D4B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+              Fully Furnished
             </button>
             <button
               type="button"
               onClick={() => appendFilter("AC room")}
-              className="rounded-full bg-white hover:bg-[#E8F2EC] border-2 border-[#1E5D4B] px-3.5 py-1 text-xs font-black text-[#1F2937] shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] hover:bg-[#D9EBE0] px-3.5 py-1.5 text-xs font-semibold text-[#1E5D4B] transition cursor-pointer"
             >
-              ❄️ AC Rooms
+              <svg className="w-3.5 h-3.5 shrink-0 text-[#1E5D4B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="2" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                <line x1="19.07" y1="4.93" x2="4.93" y2="19.07" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
+              AC Rooms
             </button>
           </div>
         </div>
 
-        {/* Tap to try prompts */}
-        <div className="mt-8 w-full">
-          <p className="mb-2.5 text-center text-xs font-black tracking-wider text-[#334155] uppercase">
-            Tap to try example prompts:
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {EXAMPLES.map((ex, i) => (
-              <button
-                key={ex}
-                id={`example-${i}`}
-                type="button"
-                onClick={() => setText(ex)}
-                className={`rounded-full px-4 py-1.5 text-left text-xs font-bold transition shadow-xs cursor-pointer ${
-                  i === 0
-                    ? "border-2 border-[#1E5D4B] bg-[#E8F2EC] text-[#1E5D4B] font-black"
-                    : "border-1.5 border-[#CBD5E1] bg-white text-[#1F2937] hover:border-[#1E5D4B] hover:bg-[#E8F2EC]"
-                }`}
-              >
-                {ex.length > 70 ? ex.slice(0, 68) + "…" : ex}
-              </button>
-            ))}
-          </div>
+        {/* Divider: TAP TO TRY EXAMPLE PROMPTS: */}
+        <div className="relative flex py-8 items-center w-full max-w-5xl">
+          <div className="flex-grow border-t border-[#CBD5E1]"></div>
+          <span className="flex-shrink mx-4 text-[11px] sm:text-xs font-bold tracking-widest text-[#64748B] uppercase">
+            TAP TO TRY EXAMPLE PROMPTS:
+          </span>
+          <div className="flex-grow border-t border-[#CBD5E1]"></div>
         </div>
 
-        <p className="mt-8 text-center text-xs font-semibold text-[#334155]">
-          Listings come from live public sources. Prices and availability are unverified until you confirm with the owner.
-        </p>
+        {/* Example Prompt Pills */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full max-w-5xl">
+          {EXAMPLES.map((ex, i) => {
+            const isFirst = i === 0;
+            return (
+              <button
+                key={ex.full}
+                id={`example-${i}`}
+                type="button"
+                onClick={() => setText(ex.full)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-[13px] font-medium transition cursor-pointer shadow-xs truncate ${
+                  isFirst
+                    ? "bg-[#1E5D4B] text-white hover:bg-[#16483A]"
+                    : "bg-[#E8F2EC] text-[#475569] hover:bg-[#D9EBE0] border border-[#CBD5E1]"
+                }`}
+              >
+                <svg
+                  className={`h-4 w-4 shrink-0 ${isFirst ? "text-white" : "text-[#1E5D4B]"}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span className="truncate">
+                  {ex.display}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </main>
     );
   }
