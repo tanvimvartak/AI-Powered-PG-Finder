@@ -1,13 +1,9 @@
 "use client";
 /**
  * Honest Result Card for real PG & student accommodations:
- * - Modern Calm Trustworthy styling (Deep Teal, Warm Beige, Leaf Mist, Terracotta, Charcoal, Slate)
- * - Real source badges with links (OSM, Web, Geoapify).
- * - "Price not listed · Ask owner" when unlisted.
- * - Clean Leaf Mist thumbnail container with coordinates & sources.
- * - Pre-drafted enquiry UI ("Agent drafted it. You send it.").
- * - Proposed calendar visit (marked unconfirmed by owner).
- * - "SAMPLE DATA" badge shown ONLY when is_sample === true.
+ * - High-contrast Modern Calm Trustworthy styling
+ * - All text is rich Charcoal (#1F2937) and Dark Slate (#334155) - zero faint light-grey text
+ * - Prominent, high-contrast action buttons
  */
 import { useState } from "react";
 import type { EnquiryDraft, RankedListing, VisitPlan } from "@/lib/types";
@@ -72,7 +68,7 @@ export default function ResultCard({
 
   const km = l.distance_m / 1000;
   const isUnknownPrice = l.price_status === "unknown" || l.monthly_rent === null;
-  const color = isUnknownPrice ? "#64748B" : priceColor(l.monthly_rent, budget);
+  const color = isUnknownPrice ? "#334155" : priceColor(l.monthly_rent, budget);
 
   async function copyText(text: string) {
     try {
@@ -138,28 +134,28 @@ export default function ResultCard({
     <article
       id={`card-${l.id}`}
       onClick={onSelect}
-      className={`fade-up cursor-pointer overflow-hidden rounded-2xl border transition-all duration-200 bg-white ${
+      className={`fade-up cursor-pointer overflow-hidden rounded-2xl border-2 transition-all duration-200 bg-white ${
         selected
-          ? "border-[#1E5D4B] ring-2 ring-[#1E5D4B]/30 shadow-md"
-          : "border-[#E5E7EB] hover:border-[#4F8F74] hover:shadow-sm"
+          ? "border-[#1E5D4B] ring-4 ring-[#1E5D4B]/20 shadow-lg"
+          : "border-[#CBD5E1] hover:border-[#1E5D4B] hover:shadow-md"
       }`}
       style={{ animationDelay: `${item.rank * 50}ms` }}
     >
       <div className="flex flex-col sm:flex-row">
-        {/* Visual / source summary container */}
-        <div className="relative flex h-36 shrink-0 flex-col justify-between overflow-hidden bg-[#E8F2EC] p-3.5 sm:h-auto sm:w-44 border-b sm:border-b-0 sm:border-r border-[#D5E4DB]">
+        {/* Left Thumbnail & Source Info */}
+        <div className="relative flex h-36 shrink-0 flex-col justify-between overflow-hidden bg-[#E8F2EC] p-3.5 sm:h-auto sm:w-44 border-b sm:border-b-0 sm:border-r border-[#B7D5C4]">
           <div className="flex items-center justify-between">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-[#1E5D4B] text-xs font-bold text-white shadow-sm">
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-[#1E5D4B] text-xs font-black text-white shadow-sm">
               #{item.rank}
             </div>
-            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#1E5D4B] border border-[#D5E4DB] shadow-xs">
+            <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-extrabold text-[#1E5D4B] border border-[#B7D5C4] shadow-xs">
               {item.group === "worth_asking" ? "Worth Asking" : "Top Match"}
             </span>
           </div>
 
           <div className="my-auto py-2 text-center">
-            <div className="text-2xl">🏡</div>
-            <div className="mt-1 font-mono text-[11px] text-slate-500">
+            <div className="text-3xl">🏡</div>
+            <div className="mt-1 font-mono text-xs font-bold text-[#1F2937]">
               {l.lat.toFixed(3)}, {l.lng.toFixed(3)}
             </div>
           </div>
@@ -172,7 +168,7 @@ export default function ResultCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#1E5D4B] border border-[#D5E4DB] hover:bg-[#1E5D4B] hover:text-white transition-colors"
+                className="rounded-md bg-white px-2 py-0.5 text-[11px] font-bold text-[#1E5D4B] border border-[#B7D5C4] hover:bg-[#1E5D4B] hover:text-white transition-colors"
                 title={`View on ${s.name}`}
               >
                 🔗 {s.name}
@@ -181,73 +177,73 @@ export default function ResultCard({
           </div>
         </div>
 
-        {/* Details & content */}
-        <div className="flex-1 space-y-2.5 p-4">
-          {/* Header */}
+        {/* Right Details Container */}
+        <div className="flex-1 space-y-3 p-4">
+          {/* Title & Badge */}
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h3 className="text-base font-bold leading-tight text-[#1F2937]">{l.name}</h3>
-              <p className="mt-0.5 text-xs text-slate-500">{l.address}</p>
+              <h3 className="text-lg font-black leading-tight text-[#1F2937]">{l.name}</h3>
+              <p className="mt-1 text-xs font-semibold text-[#334155]">{l.address}</p>
             </div>
             <div className="flex items-center gap-1.5">
               {l.is_sample ? (
-                <span className="badge-sample" title="This listing is fictional demo data">
+                <span className="badge-sample font-black text-[#C2410C]">
                   SAMPLE DATA
                 </span>
               ) : (
-                <span className="badge-verified flex items-center gap-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] px-2.5 py-0.5 text-xs font-black text-[#1E5D4B] border border-[#B7D5C4]">
                   <span>🛡️</span> Verified
                 </span>
               )}
             </div>
           </div>
 
-          {/* Pricing & distance */}
+          {/* Pricing & Distance */}
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             {isUnknownPrice ? (
-              <span className="rounded-lg bg-[#E8F2EC] px-2.5 py-1 text-xs font-semibold text-[#1F2937] border border-[#D5E4DB]">
-                Price unlisted · <span className="text-[#F08A5D]">Ask owner</span>
+              <span className="rounded-lg bg-[#E8F2EC] px-3 py-1 text-xs font-bold text-[#1F2937] border border-[#B7D5C4]">
+                Price unlisted · <span className="font-extrabold text-[#C2410C]">Ask owner</span>
               </span>
             ) : (
-              <span className="text-xl font-extrabold" style={{ color }}>
+              <span className="text-2xl font-black" style={{ color }}>
                 {inr(l.monthly_rent!)}
-                <span className="text-xs font-normal text-slate-500">/mo</span>
+                <span className="text-xs font-bold text-[#334155]">/mo</span>
               </span>
             )}
-            <span className="text-xs text-slate-600 font-medium">
+            <span className="text-xs font-extrabold text-[#1F2937]">
               📍 {km < 1 ? `${l.distance_m} m` : `${km.toFixed(1)} km`} · 🚶 {item.walk_minutes} min walk
             </span>
           </div>
 
-          {/* Amenities & preferences chips */}
+          {/* Feature Chips */}
           <div className="flex flex-wrap gap-1.5">
             {l.sharing_type && <span className="chip">{l.sharing_type} sharing</span>}
-            <span className="chip">{l.gender === "any" ? "boys & girls" : l.gender}</span>
+            <span className="chip font-bold text-[#1F2937]">{l.gender === "any" ? "boys & girls" : l.gender}</span>
             {l.food_included === true && (
-              <span className="chip text-[#1E5D4B] font-semibold">🍛 meals included</span>
+              <span className="chip font-bold text-[#1E5D4B]">🍛 meals included</span>
             )}
-            {l.food_included === false && <span className="chip text-slate-500">no meals</span>}
+            {l.food_included === false && <span className="chip font-bold text-[#334155]">no meals</span>}
             {l.contact_phone && (
-              <span className="chip text-[#1E5D4B]">📞 Phone listed</span>
+              <span className="chip font-bold text-[#1E5D4B]">📞 Phone listed</span>
             )}
             {l.amenities.map((a) => (
-              <span key={a} className="chip">
+              <span key={a} className="chip font-bold text-[#1F2937]">
                 {AMENITY_ICON[a.toLowerCase()] ?? "•"} {a}
               </span>
             ))}
           </div>
 
           {/* Why this option */}
-          <div className="rounded-xl border border-[#D5E4DB] bg-[#E8F2EC] px-3 py-2 text-xs leading-relaxed text-slate-700">
-            <span className="font-bold text-[#1E5D4B]">Why this option: </span>
-            {item.why}
+          <div className="rounded-xl border border-[#B7D5C4] bg-[#E8F2EC] px-3.5 py-2.5 text-xs leading-relaxed">
+            <span className="font-extrabold text-[#1E5D4B]">Why this option: </span>
+            <span className="font-bold text-[#1F2937]">{item.why}</span>
           </div>
 
-          {/* Red flags / caveats */}
+          {/* Red flags */}
           {item.red_flags.length > 0 && (
             <ul className="space-y-1">
               {item.red_flags.map((f) => (
-                <li key={f} className="flex gap-1.5 text-xs text-amber-700 bg-amber-50 rounded-lg p-1.5 border border-amber-200">
+                <li key={f} className="flex gap-1.5 text-xs font-bold text-[#9A3412] bg-[#FEF3C7] rounded-lg p-2 border border-[#FDE68A]">
                   <span>ℹ️</span>
                   <span>{f}</span>
                 </li>
@@ -255,15 +251,15 @@ export default function ResultCard({
             </ul>
           )}
 
-          {/* Outreach Enquiry section */}
+          {/* Outreach Enquiry Section */}
           <div
-            className="rounded-xl border border-[#E5E7EB] bg-[#FFF8F2] p-3 text-sm space-y-2.5"
+            className="rounded-xl border-2 border-[#CBD5E1] bg-[#FFFFFF] p-3.5 text-sm space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-[#1F2937]">
+              <span className="flex items-center gap-2 text-xs font-black text-[#1F2937]">
                 💬 Outreach Enquiry
-                <span className="rounded-full bg-[#E8F2EC] px-2 py-0.5 text-[10px] font-semibold text-[#1E5D4B] border border-[#D5E4DB]">
+                <span className="rounded-full bg-[#E8F2EC] px-2.5 py-0.5 text-[11px] font-extrabold text-[#1E5D4B] border border-[#B7D5C4]">
                   Agent drafted · You send
                 </span>
               </span>
@@ -271,7 +267,7 @@ export default function ResultCard({
                 <button
                   type="button"
                   onClick={() => setShowEnquiry((s) => !s)}
-                  className="text-[11px] font-semibold text-[#1E5D4B] hover:underline"
+                  className="text-xs font-bold text-[#1E5D4B] hover:underline"
                 >
                   {showEnquiry ? "hide" : "view"}
                 </button>
@@ -280,8 +276,8 @@ export default function ResultCard({
 
             {draft ? (
               showEnquiry && (
-                <div className="space-y-2">
-                  <div className="rounded-lg bg-white border border-[#E5E7EB] p-2.5 text-xs text-slate-700 leading-relaxed font-mono">
+                <div className="space-y-2.5">
+                  <div className="rounded-lg bg-[#F8FAFC] border border-[#CBD5E1] p-3 text-xs text-[#1F2937] font-semibold leading-relaxed font-mono">
                     "{draft.message}"
                   </div>
 
@@ -291,7 +287,7 @@ export default function ResultCard({
                         href={draft.wa_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#1E5D4B] hover:bg-[#16483A] text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white px-4 py-2 text-xs font-black shadow-xs transition-colors"
                         id={`wa-${l.id}`}
                       >
                         <span>🟢</span> Send on WhatsApp
@@ -301,7 +297,7 @@ export default function ResultCard({
                     {draft.tel_link && (
                       <a
                         href={draft.tel_link}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-white hover:bg-[#E8F2EC] text-[#1F2937] px-3.5 py-1.5 text-xs font-semibold border border-[#E5E7EB] transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#334155] hover:bg-[#1E293B] text-white px-4 py-2 text-xs font-black transition-colors"
                         id={`tel-${l.id}`}
                       >
                         <span>📞</span> Call ({draft.phone})
@@ -311,7 +307,7 @@ export default function ResultCard({
                     <button
                       type="button"
                       onClick={() => copyText(draft.copy_text)}
-                      className="inline-flex items-center gap-1 rounded-full bg-white hover:bg-[#E8F2EC] text-slate-600 px-3 py-1.5 text-xs font-medium border border-[#E5E7EB] transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full bg-white hover:bg-[#E8F2EC] text-[#1F2937] px-3.5 py-2 text-xs font-bold border-2 border-[#CBD5E1] transition-colors"
                       id={`copy-${l.id}`}
                     >
                       {copied ? "✓ Copied!" : "📋 Copy message"}
@@ -322,7 +318,7 @@ export default function ResultCard({
                         href={draft.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E5D4B] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-extrabold text-[#1E5D4B] hover:underline ml-auto"
                       >
                         View Source Listing ↗
                       </a>
@@ -331,11 +327,11 @@ export default function ResultCard({
                 </div>
               )
             ) : (
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-xs text-slate-500">Draft a personalized inquiry for this place:</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <span className="text-xs font-bold text-[#334155]">Draft a personalized inquiry for this place:</span>
                 <button
                   type="button"
-                  className="btn-secondary text-xs py-1 px-3"
+                  className="btn-secondary text-xs font-extrabold"
                   onClick={requestDraft}
                   disabled={busy === "draft"}
                   id={`draft-btn-${l.id}`}
@@ -349,14 +345,14 @@ export default function ResultCard({
           {/* Proposed Visit Section */}
           <div onClick={(e) => e.stopPropagation()}>
             {visit ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#D5E4DB] bg-[#E8F2EC] p-3 text-xs text-slate-800">
-                <span>🗓️ Proposed visit on <b>{fmtSlot(visit.datetime)}</b> (pending owner confirmation)</span>
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#B7D5C4] bg-[#E8F2EC] p-3 text-xs font-bold text-[#1F2937]">
+                <span>🗓️ Proposed visit on <b className="text-[#1E5D4B] font-black">{fmtSlot(visit.datetime)}</b> (pending owner confirmation)</span>
                 <div className="flex gap-2 ml-auto">
-                  <a className="btn-ghost text-xs py-1 px-2.5" href={visit.ics_url} download id={`ics-${l.id}`}>
+                  <a className="btn-ghost text-xs py-1 px-3 font-bold" href={visit.ics_url} download id={`ics-${l.id}`}>
                     ⬇ .ics file
                   </a>
                   <a
-                    className="btn-ghost text-xs py-1 px-2.5"
+                    className="btn-ghost text-xs py-1 px-3 font-bold"
                     href={visit.gcal_url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -367,30 +363,30 @@ export default function ResultCard({
                 </div>
               </div>
             ) : picking ? (
-              <div className="space-y-2 rounded-xl border border-[#E5E7EB] bg-white p-3">
-                <div className="text-xs font-medium text-slate-600">
+              <div className="space-y-2 rounded-xl border-2 border-[#CBD5E1] bg-white p-3.5">
+                <div className="text-xs font-extrabold text-[#1F2937]">
                   Choose proposed visit time (to add to your calendar):
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <input
                     type="datetime-local"
-                    className="chip bg-[#FFF8F2] text-[#1F2937]"
+                    className="chip bg-[#FFF8F2] text-[#1F2937] font-bold"
                     value={slot || defaultSlot()}
                     onChange={(e) => setSlot(e.target.value)}
                     aria-label="Proposed visit time"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 pt-1">
                   <button
                     type="button"
-                    className="btn-primary px-3 py-1.5 text-xs"
+                    className="btn-primary px-4 py-1.5 text-xs font-black"
                     onClick={confirmVisit}
                     disabled={busy === "visit"}
                     id={`confirm-slot-${l.id}`}
                   >
                     {busy === "visit" ? "Scheduling..." : "Add to Calendar"}
                   </button>
-                  <button type="button" className="btn-ghost text-xs" onClick={() => setPicking(false)}>
+                  <button type="button" className="btn-ghost text-xs font-bold" onClick={() => setPicking(false)}>
                     Cancel
                   </button>
                 </div>
@@ -398,14 +394,14 @@ export default function ResultCard({
             ) : (
               <button
                 type="button"
-                className="btn-ghost w-full py-2 text-xs sm:w-auto font-medium"
+                className="btn-ghost w-full py-2.5 text-xs sm:w-auto font-black text-[#1E5D4B] border-2 border-[#1E5D4B] hover:bg-[#E8F2EC]"
                 onClick={() => setPicking(true)}
                 id={`propose-visit-${l.id}`}
               >
                 📅 Propose a visit (save to calendar)
               </button>
             )}
-            {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
+            {err && <p className="mt-2 text-xs font-bold text-red-600">{err}</p>}
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 /**
- * Parsed parameters shown as editable chips in StayLocal styling.
+ * Parsed parameters shown as editable chips in high-contrast styling.
  * Users can tweak landmark, radius, budget and deadline, then re-run without retyping.
  */
 import { useState } from "react";
@@ -38,28 +38,28 @@ export default function ParamChips({ params, disabled, onRerun }: Props) {
     onRerun(o);
   }
 
-  const field = "bg-transparent outline-none text-[#1F2937] placeholder:text-slate-400 min-w-0";
+  const field = "bg-transparent outline-none text-[#1F2937] placeholder:text-slate-500 font-bold min-w-0";
   const p = params.preferences;
 
   return (
-    <div className="glass fade-up p-3">
+    <div className="glass fade-up p-3.5 border-2 border-[#CBD5E1]">
       <div className="flex flex-wrap items-center gap-2">
-        <label className="chip py-1.5 text-sm" title="Landmark">
+        <label className="chip py-1.5 text-xs font-bold" title="Landmark">
           <span className="text-[#1E5D4B]">📍</span>
           <input
             id="chip-landmark"
-            className={`${field} w-36 sm:w-44 font-medium`}
+            className={`${field} w-36 sm:w-44`}
             value={landmark}
             onChange={(e) => setLandmark(e.target.value)}
             placeholder="landmark"
             aria-label="Landmark"
           />
         </label>
-        <label className="chip py-1.5 text-sm" title="Radius (km)">
+        <label className="chip py-1.5 text-xs font-bold" title="Radius (km)">
           <span className="text-[#1E5D4B]">📏</span>
           <input
             id="chip-radius"
-            className={`${field} w-10 text-right font-medium`}
+            className={`${field} w-12 text-right`}
             type="number"
             step="0.1"
             min="0.2"
@@ -68,38 +68,38 @@ export default function ParamChips({ params, disabled, onRerun }: Props) {
             onChange={(e) => setRadiusKm(e.target.value)}
             aria-label="Radius in km"
           />
-          <span className="text-slate-500">km</span>
+          <span className="text-[#334155] font-bold">km</span>
         </label>
-        <label className="chip py-1.5 text-sm" title="Max budget (Rs/month)">
-          <span className="text-[#F08A5D] font-bold">₹</span>
+        <label className="chip py-1.5 text-xs font-bold" title="Max budget (Rs/month)">
+          <span className="text-[#C2410C] font-black">₹</span>
           <input
             id="chip-budget"
-            className={`${field} w-16 font-medium`}
+            className={`${field} w-16`}
             inputMode="numeric"
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
             placeholder="any"
             aria-label="Max budget"
           />
-          <span className="text-slate-500">/mo</span>
+          <span className="text-[#334155] font-bold">/mo</span>
         </label>
-        <label className="chip py-1.5 text-sm" title="Move-in deadline">
+        <label className="chip py-1.5 text-xs font-bold" title="Move-in deadline">
           <span className="text-[#1E5D4B]">📅</span>
           <input
             id="chip-deadline"
-            className={`${field} font-medium`}
+            className={`${field}`}
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             aria-label="Move-in deadline"
           />
         </label>
-        {p.gender !== "any" && <span className="chip">👤 {p.gender}</span>}
-        {p.sharing !== "any" && <span className="chip">🛏 {p.sharing}</span>}
-        {p.food !== "any" && <span className="chip">🍛 food {p.food === "required" ? "needed" : "not needed"}</span>}
-        {params.sort_preference !== "best" && <span className="chip">↕ {params.sort_preference}</span>}
+        {p.gender !== "any" && <span className="chip font-bold">👤 {p.gender}</span>}
+        {p.sharing !== "any" && <span className="chip font-bold">🛏 {p.sharing}</span>}
+        {p.food !== "any" && <span className="chip font-bold">🍛 food {p.food === "required" ? "needed" : "not needed"}</span>}
+        {params.sort_preference !== "best" && <span className="chip font-bold">↕ {params.sort_preference}</span>}
         {p.amenities.map((a) => (
-          <span key={a} className="chip">
+          <span key={a} className="chip font-bold">
             ✓ {a}
           </span>
         ))}
@@ -108,14 +108,16 @@ export default function ParamChips({ params, disabled, onRerun }: Props) {
           type="button"
           onClick={submit}
           disabled={disabled}
-          className={`ml-auto rounded-full px-4 py-1.5 text-sm font-semibold transition ${dirty ? "btn-primary" : "btn-ghost"} disabled:opacity-40`}
+          className={`ml-auto rounded-full px-4 py-1.5 text-xs font-black transition ${
+            dirty ? "btn-primary" : "btn-ghost"
+          } disabled:opacity-50`}
         >
           ↻ Re-run
         </button>
       </div>
       {params.assumptions.length > 0 && (
-        <p className="mt-2 text-xs text-slate-500">
-          Preferences inferred: {params.assumptions.join(" · ")}
+        <p className="mt-2 text-xs font-semibold text-[#334155]">
+          Preferences: {params.assumptions.join(" · ")}
         </p>
       )}
     </div>

@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
-/* ─────────────────────────── StayLocal Design tokens ─────────────────────────── */
+/* ─────────────────────────── Modern Calm Trustworthy Design Tokens ─────────────────────────── */
 :root {
-  --bg: #FFF8F2;             /* Warm Beige: Main background and page sections */
+  --bg: #FFF8F2;             /* Warm Beige: Main background */
   --bg-card: #FFFFFF;        /* Crisp white card background */
-  --panel: #E8F2EC;          /* Leaf Mist: Search panels, filter chips, subtle highlights */
+  --panel: #E8F2EC;          /* Leaf Mist: Search panels, chips, highlights */
   --panel-strong: #D9EBE0;   /* Slightly deeper Leaf Mist for hovers */
-  --border: #E5E7EB;         /* Border / Divider: clean, subtle */
-  --border-subtle: #D5E4DB;  /* Organic soft border matching Leaf Mist */
-  --text: #1F2937;           /* Charcoal: Headings and body text */
-  --muted: #64748B;          /* Slate: Secondary text, metadata */
+  --border: #CBD5E1;         /* Border: clean, high contrast */
+  --border-subtle: #B7D5C4;  /* Organic green border matching Leaf Mist */
+  --text: #1F2937;           /* Charcoal: Headings and primary body text */
+  --muted: #334155;          /* Dark Slate: Secondary text with high readability */
   --primary: #1E5D4B;        /* Deep Teal: Primary buttons, links, navigation */
   --primary-hover: #16483A;
   --secondary: #4F8F74;      /* Sage Green: Secondary buttons, icons, success states */
   --accent: #F08A5D;         /* Terracotta: Price badges, favourite indicators, accents */
   --accent-light: #FDEEE7;
   --ok: #1E5D4B;
-  --warn: #E0A24B;
+  --warn: #D97706;
   --bad: #DC2626;
 }
 
@@ -53,109 +53,110 @@ body {
   background-attachment: fixed;
 }
 
-/* ─────────────────────────── Components ─────────────────────────── */
-@layer components {
-  .glass {
-    background: #FFFFFF;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 20px -2px rgba(30, 93, 75, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03);
-    border-radius: 1.25rem;
-  }
-  .glass-mist {
-    background: var(--panel);
-    border: 1px solid var(--border-subtle);
-    border-radius: 1.25rem;
-  }
-  .btn-primary {
-    background: var(--primary);
-    color: #FFFFFF;
-    font-weight: 600;
-    border-radius: 9999px;
-    padding: 0.7rem 1.4rem;
-    box-shadow: 0 6px 18px -3px rgba(30, 93, 75, 0.35);
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.2s ease,
-      background-color 0.2s ease,
-      opacity 0.2s;
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px -4px rgba(30, 93, 75, 0.45);
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .btn-secondary {
-    background: var(--panel);
-    color: var(--primary);
-    font-weight: 600;
-    border: 1px solid var(--border-subtle);
-    border-radius: 9999px;
-    padding: 0.6rem 1.2rem;
-    transition: background-color 0.2s, color 0.2s;
-  }
-  .btn-secondary:hover {
-    background: var(--panel-strong);
-    color: var(--primary-hover);
-  }
-  .btn-ghost {
-    border: 1px solid var(--border);
-    background: #FFFFFF;
-    color: var(--text);
-    border-radius: 9999px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    transition:
-      background 0.2s,
-      border-color 0.2s,
-      color 0.2s;
-  }
-  .btn-ghost:hover {
-    background: #F9FBFA;
-    border-color: var(--border-subtle);
-    color: var(--primary);
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    border-radius: 9999px;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: var(--panel);
-    border: 1px solid var(--border-subtle);
-    color: var(--text);
-    white-space: nowrap;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-  }
-  .chip:hover {
-    background: var(--panel-strong);
-  }
-  .badge-sample {
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.15rem 0.55rem;
-    border-radius: 9999px;
-    background: var(--accent-light);
-    color: var(--accent);
-    border: 1px solid rgba(240, 138, 93, 0.4);
-  }
-  .badge-verified {
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    padding: 0.15rem 0.55rem;
-    border-radius: 9999px;
-    background: var(--panel);
-    color: var(--primary);
-    border: 1px solid var(--border-subtle);
-  }
+/* ─────────────────────────── Component Classes ─────────────────────────── */
+.glass {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 18px -2px rgba(30, 93, 75, 0.06);
+  border-radius: 1.25rem;
+}
+
+.btn-primary {
+  background-color: #1E5D4B !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border-radius: 9999px !important;
+  padding: 0.75rem 1.6rem !important;
+  box-shadow: 0 4px 14px rgba(30, 93, 75, 0.3) !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #16483A !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(30, 93, 75, 0.4) !important;
+}
+
+.btn-primary:disabled {
+  background-color: #A3BFB7 !important;
+  color: #FFFFFF !important;
+  opacity: 0.85 !important;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #E8F2EC !important;
+  color: #1E5D4B !important;
+  font-weight: 700 !important;
+  border: 1.5px solid #1E5D4B !important;
+  border-radius: 9999px !important;
+  padding: 0.6rem 1.25rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-secondary:hover {
+  background-color: #1E5D4B !important;
+  color: #FFFFFF !important;
+}
+
+.btn-ghost {
+  border: 1.5px solid #CBD5E1 !important;
+  background-color: #FFFFFF !important;
+  color: #1F2937 !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-ghost:hover {
+  background-color: #E8F2EC !important;
+  border-color: #1E5D4B !important;
+  color: #1E5D4B !important;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #E8F2EC;
+  border: 1.5px solid #B7D5C4;
+  color: #1F2937;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  background: #D5EBDD;
+  border-color: #1E5D4B;
+}
+
+.badge-sample {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  background: var(--accent-light);
+  color: #C2410C;
+  border: 1.5px solid rgba(240, 138, 93, 0.5);
+}
+
+.badge-verified {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: #E8F2EC;
+  color: #1E5D4B;
+  border: 1.5px solid #B7D5C4;
 }
 
 /* ─────────────────────────── Animations ─────────────────────────── */
@@ -173,7 +174,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(79, 143, 116, 0.4);
+  background: rgba(30, 93, 75, 0.4);
   animation: pulse-ring 1.6s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
 }
 .mic-ring.delay {
@@ -195,7 +196,7 @@ body {
   height: 14px;
   margin: 0 1px;
   border-radius: 2px;
-  background: var(--primary);
+  background: #1E5D4B;
   animation: bar 0.9s ease-in-out infinite;
   transform-origin: bottom;
 }
@@ -238,7 +239,7 @@ body {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
   animation: shimmer 1.4s infinite;
 }
 
@@ -253,37 +254,39 @@ body {
   }
 }
 
-/* ─────────────────────────── Leaflet (Clean Modern Light Tiles) ─────────────────────────── */
+/* ─────────────────────────── Leaflet (Clean Light High-Contrast Tiles) ─────────────────────────── */
 .leaflet-container {
   background: #E8F2EC;
   font-family: inherit;
-  border-radius: 1.25rem;
+  border-radius: 1rem;
 }
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
   background: #FFFFFF;
-  color: var(--text);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+  color: #1F2937;
+  border: 1.5px solid #CBD5E1;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.15);
   border-radius: 12px;
 }
 .leaflet-control-attribution {
-  background: rgba(255, 255, 255, 0.8) !important;
-  color: var(--muted) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #334155 !important;
   font-size: 10px !important;
+  font-weight: 500 !important;
 }
 .leaflet-control-attribution a {
-  color: var(--primary) !important;
+  color: #1E5D4B !important;
+  font-weight: 600 !important;
 }
 .pin {
   animation: pin-drop 0.4s ease both;
 }
 
-/* scrollbar */
+/* Scrollbar */
 .thin-scroll::-webkit-scrollbar {
   width: 6px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #94A3B8;
   border-radius: 6px;
 }
