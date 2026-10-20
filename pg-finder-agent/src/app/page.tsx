@@ -453,8 +453,26 @@ export default function Home() {
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-4 sm:px-5">
-      {/* Top Bar with Search & Home Button */}
-      <header className="mb-3 flex items-center gap-3">
+      {/* Top Bar with Search, Back & Home Button */}
+      <header className="mb-3 flex items-center gap-2 sm:gap-3">
+        <button
+          id="back-btn"
+          type="button"
+          onClick={() => {
+            abortRef.current?.abort();
+            setPhase("home");
+          }}
+          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 sm:px-3.5 py-1.5 text-xs sm:text-sm font-bold text-[#1E5D4B] border border-[#CBD5E1] shadow-xs hover:bg-[#E8F2EC] hover:border-[#1E5D4B] transition cursor-pointer shrink-0"
+          title="Back to Search"
+          aria-label="Back to Search"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          <span>Back</span>
+        </button>
+
         <button
           id="home-btn"
           type="button"
@@ -462,7 +480,7 @@ export default function Home() {
             abortRef.current?.abort();
             setPhase("home");
           }}
-          className="flex items-center gap-2 text-lg font-black text-[#1E5D4B] whitespace-nowrap cursor-pointer hover:opacity-90"
+          className="flex items-center gap-1.5 sm:gap-2 text-base sm:text-lg font-black text-[#1E5D4B] whitespace-nowrap cursor-pointer hover:opacity-90"
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1E5D4B] text-white text-sm">
             🏡

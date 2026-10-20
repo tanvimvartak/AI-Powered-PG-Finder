@@ -48,8 +48,10 @@ function loadStore(): CacheStore {
   try {
     if (fs.existsSync(CACHE_FILE)) {
       const content = fs.readFileSync(CACHE_FILE, "utf8");
-      storeMemory = JSON.parse(content);
-      return storeMemory!;
+      if (content.trim()) {
+        storeMemory = JSON.parse(content);
+        return storeMemory!;
+      }
     }
   } catch (e) {
     console.warn("[Cache] Failed to load response_cache.json:", (e as Error).message);
