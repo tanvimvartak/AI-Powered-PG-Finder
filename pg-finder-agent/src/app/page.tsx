@@ -13,6 +13,7 @@ import ApartmentIllustration from "@/components/ApartmentIllustration";
 import ParamChips from "@/components/ParamChips";
 import ResultCard from "@/components/ResultCard";
 import Timeline, { type TimelineItem } from "@/components/Timeline";
+import { BrokerageBar } from "@/components/BrokerageBar";
 import { useVoice } from "@/components/useVoice";
 import type { AgentEvent, AgentRequestBody, GeoPoint, ListingHit, OsmPlace, OwnerReply, ParsedRequest, RankedListing } from "@/lib/types";
 
@@ -653,6 +654,15 @@ export default function Home() {
                 Merged: {sourceStats?.merged ?? hits.length}
               </span>
             </div>
+          )}
+
+          {/* Direct Brokerage Quick-Access */}
+          {hits.length > 0 && (
+            <BrokerageBar
+              landmark={point?.display_name ?? params?.landmark}
+              city={params?.city_hint}
+              gender={params?.preferences?.gender}
+            />
           )}
 
           {/* Results partitioned by group */}

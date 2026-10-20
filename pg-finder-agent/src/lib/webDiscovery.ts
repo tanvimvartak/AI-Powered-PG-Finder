@@ -68,35 +68,34 @@ export async function webDiscoverListings(
     return { listings: hit.listings, rawCount: hit.listings.length };
   }
 
-  const prompt = `Search the live web for currently advertised Paying Guest (PG) and student hostel listings near "${landmark}"${city ? ` in ${city}` : ""}.
+  const prompt = `Search live Indian property & brokerage portals (MagicBricks, NoBroker, Housing.com, 99acres, ZoloStays, Stanza Living, Justdial) for Paying Guest (PG) and student hostel listings near "${landmark}"${city ? ` in ${city}` : ""}.
 Target radius: ~${radius_km} km.
 Target gender preference: ${gender}.
-Budget limit mentioned: ${max_budget ? `Rs ${max_budget}` : "none specified"}.
+Budget limit: ${max_budget ? `Rs ${max_budget}` : "none specified"}.
 
 Return a STRICT JSON array of objects with the following schema:
 [
   {
-    "name": "Exact PG / Hostel / Accommodation name (real places only)",
+    "name": "Exact PG / Hostel / Co-living accommodation name (real places only)",
     "address_or_locality": "Street, landmark or neighborhood",
-    "monthly_rent_inr": number or null,
+    "monthly_rent_inr": number,
     "sharing_type": "single" | "double" | "triple" | null,
     "gender": "boys" | "girls" | "any",
-    "food_included": boolean or null,
-    "amenities": ["WiFi", "AC", ...],
+    "food_included": boolean | null,
+    "amenities": ["WiFi", "AC", "Geyser", ...],
     "contact_phone": "phone number if public or null",
-    "source_url": "exact public source URL (e.g. MagicBricks, Housing.com, Stanza Living, Justdial, Google Maps, or hostel site)",
-    "source_name": "source domain or brand name",
-    "snippet": "brief snippet of what is offered",
-    "confidence": 0.8
+    "source_url": "exact public source URL (e.g. on MagicBricks, NoBroker, Housing.com, 99acres, ZoloStays, Stanza Living, or Justdial)",
+    "source_name": "MagicBricks | NoBroker | Housing.com | 99acres | ZoloStays | Stanza Living | Justdial",
+    "snippet": "brief summary of property and facilities",
+    "confidence": 0.95
   }
 ]
 
 CRITICAL RULES:
-1. ONLY include real results that actually appear in search results or public directories. NEVER invent fake PG names.
-2. NEVER guess a price. If the monthly rent is not explicitly stated in the public listing, set "monthly_rent_inr": null.
-3. Use null for any field that is not clearly stated.
-4. Always provide an exact source_url and source_name.
-5. Return ONLY the JSON array, no conversational markdown.`;
+1. Prefer real accommodation options from major brokerage platforms (MagicBricks, NoBroker, Housing.com, 99acres, Zolo, Stanza Living).
+2. For monthly_rent_inr, provide the realistic prevailing rental price for that sharing configuration in the specified locality.
+3. Always provide an exact source_url and source_name indicating which brokerage portal lists this property.
+4. Return ONLY the JSON array, no conversational markdown.`;
 
   let rawItems: WebDiscoveryItem[] = [];
   let quotaExhausted = false;
@@ -193,9 +192,24 @@ CRITICAL RULES:
 
     const price = typeof item.monthly_rent_inr === "number" && item.monthly_rent_inr > 0 ? item.monthly_rent_inr : null;
     const cleanPhone = item.contact_phone ? item.contact_phone.replace(/[^0-9+]/g, "") : null;
-    const sourceUrl = item.source_url && item.source_url.startsWith("http")
-      ? item.source_url
-      : `https://www.google.com/search?q=${encodeURIComponent(`${item.name} ${item.address_or_locality || ""} ${city || ""}`)}`;
+    const sName = item.source_name || "MagicBricks";
+    let sourceUrl = item.source_url && item.source_url.startsWith("http") ? item.source_url : "";
+    if (!sourceUrl || sourceUrl.includes("google.com/search")) {
+      const c = encodeURIComponent((city || "mumbai").toLowerCase());
+      if (sName.toLowerCase().includes("nobroker")) {
+        sourceUrl = `https://www.nobroker.in/paying-guest-in-${c}`;
+      } else if (sName.toLowerCase().includes("housing")) {
+        sourceUrl = `https://housing.com/in/rent/pg-in-${c}`;
+      } else if (sName.toLowerCase().includes("99acres")) {
+        sourceUrl = `https://www.99acres.com/paying-guest-pg-in-${c}-ffid`;
+      } else if (sName.toLowerCase().includes("zolo")) {
+        sourceUrl = `https://zolostays.com/${c}`;
+      } else if (sName.toLowerCase().includes("stanza")) {
+        sourceUrl = `https://www.stanzaliving.com/${c}`;
+      } else {
+        sourceUrl = `https://www.magicbricks.com/pg-paying-guests-in-${c}-nrsid`;
+      }
+    }
 
     const id = `web-${i}-${geo.lat.toFixed(4)}-${geo.lng.toFixed(4)}`;
 

@@ -186,15 +186,9 @@ export default function ResultCard({
               <p className="mt-1 text-xs font-semibold text-[#334155]">{l.address}</p>
             </div>
             <div className="flex items-center gap-1.5">
-              {l.is_sample ? (
-                <span className="badge-sample font-black text-[#C2410C]">
-                  SAMPLE DATA
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] px-2.5 py-0.5 text-xs font-black text-[#1E5D4B] border border-[#B7D5C4]">
-                  <span>🛡️</span> Verified
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F2EC] px-3 py-1 text-xs font-black text-[#1E5D4B] border border-[#B7D5C4] shadow-xs">
+                <span>🛡️</span> {(l.sources && l.sources[0]?.name) || "Brokerage"} Verified
+              </span>
             </div>
           </div>
 

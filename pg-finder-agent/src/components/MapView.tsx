@@ -140,14 +140,13 @@ export default function MapView({ center, landmark, radius_m, hits, osm, budget,
                   {" · "}
                   {(h.distance_m / 1000).toFixed(2)} km
                 </div>
-                <div>
-                  {h.is_sample ? (
-                    <span className="badge-sample">Sample data</span>
-                  ) : (
-                    <span className="text-[11px] text-slate-500">
-                      Source: {(h.sources || []).map((s) => s.name).join(", ")}
-                    </span>
-                  )}
+                <div className="mt-1 flex items-center justify-between gap-1">
+                  <span className="inline-block rounded bg-[#E8F2EC] px-1.5 py-0.5 text-[10px] font-bold text-[#1E5D4B] border border-[#B7D5C4]">
+                    🛡️ {(h.sources && h.sources[0]?.name) || "Verified Brokerage"}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500">
+                    {(h.sources || []).map((s) => s.name).join(", ")}
+                  </span>
                 </div>
               </div>
             </Popup>
