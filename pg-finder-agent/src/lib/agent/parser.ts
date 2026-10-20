@@ -121,14 +121,37 @@ function normalize(p: ParsedRequest, overrides?: AgentRequestBody["overrides"]):
   return out;
 }
 
-export async function parseRequest(text: string, overrides?: AgentRequestBody["overrides"]): Promise<{ parsed: ParsedRequest; via: "gemini" | "fallback" }> {
+import { getCachedParsedRequest, setCachedParsedRequest } from "../cache";
+import { ruleBasedParse } from "./ruleParser";
+
+export async function parseRequest(
+  text: string,
+  overrides?: AgentRequestBody["overrides"]
+): Promise<{ parsed: ParsedRequest; via: "rules" | "gemini" | "cache" | "fallback" }> {
+  // 1. Check persistent cache
+  const cached = getCachedParsedRequest(text);
+  if (cached) {
+    return { parsed: normalize(cached, overrides), via: "cache" };
+  }
+
+  // 2. Rule-based extraction (0 LLM calls)
+  const { parsed: ruleParsed, confident } = ruleBasedParse(text);
+  if (confident) {
+    setCachedParsedRequest(text, ruleParsed);
+    return { parsed: normalize(ruleParsed, overrides), via: "rules" };
+  }
+
+  // 3. Fallback to lightweight model only when rules fail to extract landmark or budget
   const today = todayIST();
   const prompt = PARSER_PROMPT.replace("{TODAY}", isoDate(today)).replace("{WEEKDAY}", WEEKDAYS[today.getUTCDay()]);
   try {
     const parsed = await generateJson<ParsedRequest>(`Student sentence: """${text}"""`, PARSE_SCHEMA, prompt);
-    return { parsed: normalize(parsed, overrides), via: "gemini" };
+    const normalized = normalize(parsed, overrides);
+    setCachedParsedRequest(text, normalized);
+    return { parsed: normalized, via: "gemini" };
   } catch (e) {
-    console.warn("[parse_request] Gemini failed, using heuristic:", (e as Error).message);
-    return { parsed: normalize(heuristicParse(text), overrides), via: "fallback" };
+    console.warn("[parse_request] LLM failed or quota exceeded, using rule parser:", (e as Error).message);
+    const normalized = normalize(ruleParsed, overrides);
+    return { parsed: normalized, via: "fallback" };
   }
 }
