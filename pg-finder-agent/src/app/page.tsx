@@ -641,13 +641,13 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-2 py-1 text-xs font-bold">
               <span className="text-[#1F2937] font-black">Data sources:</span>
               <span className="rounded-md bg-[#E8F2EC] border border-[#B7D5C4] px-2.5 py-0.5 text-[#1F2937]">
-                OSM: <b className="text-[#1E5D4B]">{sourceStats?.osm ?? hits.filter((h) => h.sources.some((s) => s.name === "OpenStreetMap")).length}</b>
+                OSM: <b className="text-[#1E5D4B]">{sourceStats?.osm ?? hits.filter((h) => (h.sources || []).some((s) => s.name === "OpenStreetMap")).length}</b>
               </span>
               <span className="rounded-md bg-[#E8F2EC] border border-[#B7D5C4] px-2.5 py-0.5 text-[#1F2937]">
                 Geoapify: <b className="text-[#1E5D4B]">{sourceStats?.geoapify ?? 0}</b>
               </span>
               <span className="rounded-md bg-[#E8F2EC] border border-[#B7D5C4] px-2.5 py-0.5 text-[#1F2937]">
-                Live Web: <b className="text-[#1E5D4B]">{sourceStats?.web ?? hits.filter((h) => h.sources.some((s) => s.name !== "OpenStreetMap" && s.name !== "Geoapify")).length}</b>
+                Live Web: <b className="text-[#1E5D4B]">{sourceStats?.web ?? hits.filter((h) => (h.sources || []).some((s) => s.name !== "OpenStreetMap" && s.name !== "Geoapify")).length}</b>
               </span>
               <span className="rounded-md bg-[#1E5D4B] text-white px-2.5 py-0.5 font-black">
                 Merged: {sourceStats?.merged ?? hits.length}

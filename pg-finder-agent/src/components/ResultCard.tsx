@@ -161,7 +161,7 @@ export default function ResultCard({
           </div>
 
           <div className="flex flex-wrap gap-1">
-            {l.sources.map((s, idx) => (
+            {(l.sources || []).map((s, idx) => (
               <a
                 key={idx}
                 href={s.url}

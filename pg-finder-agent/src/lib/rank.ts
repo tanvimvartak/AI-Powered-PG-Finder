@@ -124,7 +124,7 @@ export function rankListings(input: RankInput): RankedListing[] {
     if (walk <= 10) pros.push(`${walk} min walk (${l.distance_m} m)`);
     else pros.push(`${(l.distance_m / 1000).toFixed(1)} km away`);
 
-    if (l.sources.length) {
+    if (l.sources && Array.isArray(l.sources) && l.sources.length) {
       pros.push(`found on ${l.sources.map((s) => s.name).join(", ")}`);
     }
 

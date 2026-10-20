@@ -145,7 +145,7 @@ export default function MapView({ center, landmark, radius_m, hits, osm, budget,
                     <span className="badge-sample">Sample data</span>
                   ) : (
                     <span className="text-[11px] text-slate-500">
-                      Source: {h.sources.map((s) => s.name).join(", ")}
+                      Source: {(h.sources || []).map((s) => s.name).join(", ")}
                     </span>
                   )}
                 </div>

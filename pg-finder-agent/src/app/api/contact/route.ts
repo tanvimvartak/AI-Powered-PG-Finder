@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const sharing = sharing_preference && sharing_preference !== "any" ? `${sharing_preference} sharing` : "a";
   const gen = gender && gender !== "any" ? `for ${gender}` : "";
   const bud = budget ? `, with my budget around Rs ${budget}/month` : "";
-  const sourceName = l.sources[0]?.name || "public directories";
+  const sourceName = l.sources?.[0]?.name || "public directories";
 
   const message =
     `Hi, I saw your accommodation listing for "${l.name}" via ${sourceName}. ` +
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     tel_link: telLink,
     copy_text: message,
     phone: l.contact_phone || null,
-    source_url: l.sources[0]?.url || l.website || null,
+    source_url: l.sources?.[0]?.url || l.website || null,
   };
 
   return Response.json(draft);

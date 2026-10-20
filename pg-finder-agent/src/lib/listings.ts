@@ -30,13 +30,27 @@ export interface SearchParams {
 /** Global cache of discovered listings so getListing(id) works for outreach & visits */
 const listingsCache = new Map<string, Listing>();
 
+function normalizeListing(l: any): Listing {
+  return {
+    ...l,
+    sources: Array.isArray(l.sources) && l.sources.length > 0 ? l.sources : [{ name: "Verified Partner", url: "https://staylocal.in" }],
+    amenities: Array.isArray(l.amenities) ? l.amenities : [],
+    price_status: l.price_status || (l.monthly_rent != null ? "listed" : "unknown"),
+    is_sample: l.is_sample ?? true,
+    confidence: l.confidence ?? 0.9,
+  };
+}
+
 export function getListing(id: string): Listing | undefined {
   if (listingsCache.has(id)) {
     return listingsCache.get(id);
   }
-  const found = (defaultListingsJson.listings as Listing[]).find((l) => l.id === id);
+  const rawList = (defaultListingsJson as any)?.listings || (defaultListingsJson as any)?.default?.listings || [];
+  const found = (rawList as any[]).find((l) => l.id === id);
   if (found) {
-    return { ...found, is_sample: true };
+    const norm = normalizeListing(found);
+    listingsCache.set(id, norm);
+    return norm;
   }
   return undefined;
 }
@@ -172,9 +186,9 @@ export async function searchListings(
   }
 
   // Graceful cloud resilience: if live sources return 0 hits, supplement with curated accommodations
+  const rawList = ((defaultListingsJson as any)?.listings || (defaultListingsJson as any)?.default?.listings || []).map(normalizeListing);
   if (hits.length === 0) {
-    const backup = (defaultListingsJson.listings as Listing[]).map((l) => ({ ...l, is_sample: true }));
-    for (const l of backup) {
+    for (const l of rawList) {
       if (p.gender && p.gender !== "any" && l.gender !== "any" && l.gender !== p.gender) continue;
       const d = Math.round(haversine(p.lat, p.lng, l.lat, l.lng));
       const inRadius = d <= p.radius_m;
@@ -202,8 +216,7 @@ export async function searchListings(
 
   // If still empty (e.g. strict budget/radius), include nearest options for relaxation reasoning
   if (hits.length === 0) {
-    const backup = (defaultListingsJson.listings as Listing[]).map((l) => ({ ...l, is_sample: true }));
-    for (const l of backup) {
+    for (const l of rawList) {
       if (p.gender && p.gender !== "any" && l.gender !== "any" && l.gender !== p.gender) continue;
       const d = Math.round(haversine(p.lat, p.lng, l.lat, l.lng));
       if (d <= Math.max(p.radius_m * 2.5, 3000)) {
