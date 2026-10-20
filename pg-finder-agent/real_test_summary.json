@@ -1,0 +1,90 @@
+[
+  {
+    "id": "Q1_Mithibai_Real",
+    "query": "PG near Mithibai College within 1 km, budget 5000, need in 5 days",
+    "duration": "8.6",
+    "sourceStats": {},
+    "totalRanked": 1,
+    "seedCount": 0,
+    "topResults": [
+      {
+        "name": "Sai Krupa Paying Guest",
+        "price": null,
+        "price_status": "unknown",
+        "sources": [
+          {
+            "name": "Justdial",
+            "url": "https://www.justdial.com/Mumbai/Paying-Guest-Accommodations-in-Vile-Parle-West/nct-10452425"
+          }
+        ]
+      }
+    ],
+    "success": true
+  },
+  {
+    "id": "Q2_Andheri_Girls_Real",
+    "query": "Girls PG near Andheri station, walking distance, under 6k",
+    "duration": "8.1",
+    "sourceStats": {},
+    "totalRanked": 1,
+    "seedCount": 0,
+    "topResults": [
+      {
+        "name": "Zolo Andheri",
+        "price": null,
+        "price_status": "unknown",
+        "sources": [
+          {
+            "name": "Zolostays",
+            "url": "https://coliving.zolostays.com/"
+          }
+        ]
+      }
+    ],
+    "success": true
+  },
+  {
+    "id": "Q3_Non_Seed_City_Pune",
+    "query": "PG near Fergusson College in Pune within 2 km",
+    "duration": "23.9",
+    "sourceStats": {},
+    "totalRanked": 1,
+    "seedCount": 0,
+    "topResults": [
+      {
+        "name": "Zolo PGs near Fergusson College",
+        "price": null,
+        "price_status": "unknown",
+        "sources": [
+          {
+            "name": "Zolostays",
+            "url": "https://www.zolostays.com/"
+          }
+        ]
+      }
+    ],
+    "success": true
+  },
+  {
+    "id": "Q4_Price_Unknown_Handling",
+    "query": "Hostel or PG near St. Xavier's College Mumbai within 1.5 km",
+    "duration": "40.3",
+    "sourceStats": {},
+    "totalRanked": 1,
+    "seedCount": 0,
+    "topResults": [
+      {
+        "name": "YWCA International Guest House",
+        "price": null,
+        "price_status": "unknown",
+        "sources": [
+          {
+            "name": "Justdial",
+            "url": "https://www.justdial.com/Mumbai/Ywca-International-Guest-House-Near-Regal-Cinema-Colaba/022PXX22-XX22-120513163539-X8U2_BZDET"
+          }
+        ]
+      }
+    ],
+    "success": true
+  }
+]

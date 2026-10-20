@@ -14,8 +14,8 @@
  */
 import "server-only";
 import { generate, type GeminiContent, type GeminiPart } from "../gemini";
-import type { AgentEvent, AgentRequestBody, OwnerReply } from "../types";
-import { executeTool, simulateOwners, stepLabel, type AgentSession } from "./executor";
+import type { AgentEvent, AgentRequestBody } from "../types";
+import { executeTool, stepLabel, type AgentSession } from "./executor";
 import { isoDate, todayIST, WEEKDAYS } from "./parser";
 import { AGENT_SYSTEM_PROMPT, STRICT_NOTE } from "./systemPrompt";
 import { TOOL_DECLARATIONS } from "./tools";
@@ -24,23 +24,13 @@ export const MAX_ITERATIONS = 10;
 
 type Call = { id?: string; name: string; args: Record<string, unknown> };
 
-/** Execute one turn's tool calls in parallel; batch multiple contact_owner calls into one LLM request. */
+/** Execute one turn's tool calls in parallel. */
 async function runCalls(calls: Call[], session: AgentSession, nextStep: () => string): Promise<GeminiPart[]> {
   const sids = calls.map((c) => {
     const sid = nextStep();
     session.emit({ type: "step", id: sid, status: "running", label: stepLabel(c.name, c.args), tool: c.name, input: c.args });
     return sid;
   });
-
-  // Batch owner role-play (one Gemini call for N owners → saves free-tier quota)
-  const contacts = calls.filter((c) => c.name === "contact_owner");
-  if (contacts.length > 1) {
-    const replies = await simulateOwners(
-      contacts.map((c) => ({ listingId: String(c.args.listing_id), message: String(c.args.message ?? "") })),
-      session.parsed,
-    );
-    session.prefetchedReplies = Object.fromEntries(replies.map((r: OwnerReply) => [r.listing_id, r]));
-  }
 
   return Promise.all(
     calls.map(async (c, i) => {
@@ -58,7 +48,7 @@ async function runCalls(calls: Call[], session: AgentSession, nextStep: () => st
 }
 
 export async function runAgent(body: AgentRequestBody, emit: (e: AgentEvent) => void, signal?: AbortSignal) {
-  const session: AgentSession = { body, replies: {}, relaxations: [], emit };
+  const session: AgentSession = { body, drafts: {}, relaxations: [], emit };
   const today = todayIST();
   const system = AGENT_SYSTEM_PROMPT.replace("{TODAY}", `${isoDate(today)} (${WEEKDAYS[today.getUTCDay()]})`).replace("{STRICT}", body.strict ? STRICT_NOTE : "");
   const contents: GeminiContent[] = [{ role: "user", parts: [{ text: body.text }] }];
@@ -145,19 +135,24 @@ async function runOfflinePlanner(s: AgentSession, nextStep: () => string) {
   }
 
   if (!s.lastSearch?.hits.length) {
-    s.emit({ type: "final", text: `No PGs found near ${p.landmark} even after relaxing constraints. Try a bigger radius or budget. (Offline planner; all listings are sample data.)` });
+    s.emit({
+      type: "final",
+      text: `No PG or student accommodations found near "${p.landmark}" within ${(radius / 1000).toFixed(1)} km across live public sources. Try a larger radius or a nearby landmark.`,
+    });
     return;
   }
   await one("rank_listings", { radius_m: radius, max_budget: max, deadline_date: p.deadline_date, sort_preference: p.sort_preference });
-  const top = (s.ranked ?? []).slice(0, 3);
-  const msg = (name: string) =>
-    `Hi, I'm a student looking for a PG bed${p.deadline_date ? ` from ${p.deadline_date}` : ""}${p.max_budget ? `, budget around Rs ${p.max_budget}` : ""}. Is a bed available at ${name}? What is the final rent and when can I visit?`;
-  if (top.length) await runCalls(top.map((r) => ({ name: "contact_owner", args: { listing_id: r.listing.id, message: msg(r.listing.name) } })), s, nextStep);
+  const top = (s.ranked ?? []).slice(0, 2);
+  if (top.length) {
+    await runCalls(top.map((r) => ({ name: "draft_enquiry", args: { listing_id: r.listing.id } })), s, nextStep);
+  }
 
   const best = top[0];
-  const relax = s.relaxations.length ? ` I had to relax: ${s.relaxations.map((r) => (r.kind === "radius" ? `radius to ${(r.to / 1000).toFixed(1)} km` : `budget to Rs ${r.to.toLocaleString("en-IN")}`)).join(", ")}.` : "";
+  const relax = s.relaxations.length
+    ? ` Note: I expanded the search to ${(radius / 1000).toFixed(1)} km to discover real options.`
+    : "";
   s.emit({
     type: "final",
-    text: `Searched near ${p.landmark} within ${(radius / 1000).toFixed(1)} km${max ? ` under Rs ${max.toLocaleString("en-IN")}` : ""}${p.deadline_date ? `, move-in by ${p.deadline_date}` : ""}.${relax} Top pick: ${best.listing.name}: ${best.why}.${best.red_flags.length ? ` Watch out: ${best.red_flags[0]}.` : ""} I messaged ${top.length} owners (simulated replies). (Summary written by the offline planner because Gemini was unavailable.) All listings are sample data.`,
+    text: `Found accommodation options near ${p.landmark} within ${(radius / 1000).toFixed(1)} km.${relax} Top match: ${best.listing.name} (${best.why}). I have prepared pre-drafted enquiries for you to review and send to owners. Listings come from live public sources. Prices and availability are unverified until you confirm with the owner.`,
   });
 }

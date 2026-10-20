@@ -1,6 +1,6 @@
 {
   "_note": "SAMPLE DATA: fictional listings for demo purposes only.",
-  "generated_at": "2026-10-18T17:02:40.593Z",
+  "generated_at": "2026-10-20T10:48:55.158Z",
   "listings": [
     {
       "id": "PG001",
@@ -24,7 +24,7 @@
         "Clean rooms, 5 min walk to Mithibai",
         "Owner is strict about timings but fair"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -59,7 +59,7 @@
         "Homely Gujarati food twice a day",
         "Worth the small extra over budget because food is included"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -92,7 +92,7 @@
         "Good value, a bit far from college",
         "Quiet lane, close to Juhu beach"
       ],
-      "available_from": "2026-10-21",
+      "available_from": "2026-10-23",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -125,7 +125,7 @@
         "Water supply only 2 hours a day",
         "Very cheap but dirty bathrooms"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -161,7 +161,7 @@
         "Very safe for girls, CCTV and warden",
         "AC rooms at this price is rare"
       ],
-      "available_from": "2026-10-28",
+      "available_from": "2026-10-30",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -195,7 +195,7 @@
         "Rooms are nice",
         "Deposit is very high and refund took 3 months"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 800,
         "maintenance": 300
@@ -230,7 +230,7 @@
         "Food is simple but good",
         "Curfew at 10 pm"
       ],
-      "available_from": "2026-10-22",
+      "available_from": "2026-10-24",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -266,7 +266,7 @@
         "Single room with AC, very peaceful",
         "Pricey but premium"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -299,7 +299,7 @@
         "Okay for the price",
         "Crowded rooms"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -336,7 +336,7 @@
         "Right opposite college gate",
         "Excellent food and security"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -371,7 +371,7 @@
         "Very close to station",
         "Warden aunty is caring"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -404,7 +404,7 @@
         "Affordable, okay hygiene",
         "Small rooms"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -439,7 +439,7 @@
         "AC and food, great combo",
         "Slightly over 6k"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -472,7 +472,7 @@
         "Next to station, noisy",
         "Value for money"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -509,7 +509,7 @@
         "Modern co-living, great community",
         "Expensive"
       ],
-      "available_from": "2026-10-21",
+      "available_from": "2026-10-23",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -541,7 +541,7 @@
         "Deposit is huge",
         "Owner deducts for small things"
       ],
-      "available_from": "2026-10-23",
+      "available_from": "2026-10-25",
       "extra_charges": {
         "electricity": 600,
         "maintenance": 0
@@ -575,7 +575,7 @@
         "Near metro",
         "Food quality varies"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -609,7 +609,7 @@
         "Spacious rooms",
         "Far from station, need auto"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -643,7 +643,7 @@
         "Safe, homely food",
         "Strict 9:30 pm curfew"
       ],
-      "available_from": "2026-10-30",
+      "available_from": "2026-11-01",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -678,7 +678,7 @@
         "Walk to IIT main gate",
         "Good food"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -715,7 +715,7 @@
         "Luxury living",
         "Very expensive for students"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -748,7 +748,7 @@
         "Basic but cheap for Powai",
         "Village area, a bit congested"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -783,7 +783,7 @@
         "Lake view from terrace!",
         "Safe and clean"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -815,7 +815,7 @@
         "Cheap",
         "Traffic noise all night"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -849,7 +849,7 @@
         "Close to IIT Y-point",
         "Decent food"
       ],
-      "available_from": "2026-10-22",
+      "available_from": "2026-10-24",
       "extra_charges": {
         "electricity": 700,
         "maintenance": 0
@@ -883,7 +883,7 @@
         "Good rooms",
         "Need a bus to IIT"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -915,7 +915,7 @@
         "Owner keeps changing rules",
         "Deposit refund problems"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -949,7 +949,7 @@
         "Near Shivaji Park, great locality",
         "Maharashtrian thali every night"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -983,7 +983,7 @@
         "Very well connected",
         "Rooms are old"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1019,7 +1019,7 @@
         "Premium",
         "Close to offices"
       ],
-      "available_from": "2026-10-21",
+      "available_from": "2026-10-23",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1052,7 +1052,7 @@
         "Near Ruia & Podar colleges",
         "South Indian food nearby"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1084,7 +1084,7 @@
         "Leaking roof in monsoon",
         "Cheap though"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1120,7 +1120,7 @@
         "Excellent security",
         "Worth it"
       ],
-      "available_from": "2026-10-26",
+      "available_from": "2026-10-28",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1153,7 +1153,7 @@
         "Very close to station",
         "Basic facilities"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1188,7 +1188,7 @@
         "Homely food",
         "Safe area"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1220,7 +1220,7 @@
         "Cheapest decent option in Thane",
         "Need bus to station"
       ],
-      "available_from": "2026-10-20",
+      "available_from": "2026-10-22",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1252,7 +1252,7 @@
         "Very cheap",
         "Far from everything"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1288,7 +1288,7 @@
         "Modern rooms",
         "Pricey"
       ],
-      "available_from": "2026-10-19",
+      "available_from": "2026-10-21",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1320,7 +1320,7 @@
         "Rent is low but deposit is huge",
         "Long commute"
       ],
-      "available_from": "2026-10-21",
+      "available_from": "2026-10-23",
       "extra_charges": {
         "electricity": 900,
         "maintenance": 0
@@ -1354,7 +1354,7 @@
         "Right across the station bridge",
         "Food is okay"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1387,7 +1387,7 @@
         "Good value",
         "Outside Thane, 6 km"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0
@@ -1419,7 +1419,7 @@
         "Rooms are damp",
         "Owner rarely picks up the phone"
       ],
-      "available_from": "2026-10-18",
+      "available_from": "2026-10-20",
       "extra_charges": {
         "electricity": 0,
         "maintenance": 0

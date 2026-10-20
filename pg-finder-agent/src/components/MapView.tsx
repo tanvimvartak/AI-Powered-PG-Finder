@@ -101,20 +101,33 @@ export default function MapView({ center, landmark, radius_m, hits, osm, budget,
       ))}
       {hits.map((h) => {
         const rank = rankOf[h.id];
+        const isUnknown = h.price_status === "unknown" || h.monthly_rent === null;
         return (
           <Marker
             key={h.id}
             position={[h.lat, h.lng]}
-            icon={pinIcon(priceColor(h.monthly_rent, budget), rank ? `#${rank}` : "₹", selectedId === h.id)}
+            icon={pinIcon(priceColor(h.monthly_rent, budget), rank ? `#${rank}` : isUnknown ? "?" : "₹", selectedId === h.id)}
             zIndexOffset={rank ? 500 - rank : 0}
             eventHandlers={{ click: () => onSelect(h.id) }}
           >
             <Popup>
               <b>{h.name}</b>
               <br />
-              Rs {h.monthly_rent.toLocaleString("en-IN")}/mo · {(h.distance_m / 1000).toFixed(2)} km
+              {isUnknown ? (
+                <span style={{ color: "#cbd5e1" }}>Price not listed (ask owner)</span>
+              ) : (
+                <span>Rs {h.monthly_rent?.toLocaleString("en-IN")}/mo</span>
+              )}
+              {" · "}
+              {(h.distance_m / 1000).toFixed(2)} km
               <br />
-              <span style={{ color: "#fcd34d" }}>Sample data</span>
+              {h.is_sample ? (
+                <span style={{ color: "#fcd34d" }}>Sample data</span>
+              ) : (
+                <span style={{ color: "#93c5fd" }}>
+                  Source: {h.sources.map((s) => s.name).join(", ")} (unverified)
+                </span>
+              )}
             </Popup>
           </Marker>
         );

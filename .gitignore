@@ -11,3 +11,4 @@ Thumbs.db
 data/cache/
 *.tsbuildinfo
 test_summary.json
+tmp/

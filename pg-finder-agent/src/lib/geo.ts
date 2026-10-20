@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { GeoPoint, OsmPlace } from "./types";
 
-const UA = () => process.env.OSM_USER_AGENT || "PGFinderAgent/0.1 (student demo)";
+const UA = () => process.env.OSM_USER_AGENT || "StudentPGFinderProjectApp/2.0 (student.pg.finder.app@gmail.com)";
 const CACHE_DIR = path.join(process.cwd(), "data", "cache");
 
 /** Great-circle distance in metres. */
@@ -88,7 +88,14 @@ export async function geocode(place: string, cityHint?: string | null): Promise<
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=in&q=${encodeURIComponent(q)}`;
     const data = await throttled(async () => {
-      const res = await fetch(url, { headers: { "User-Agent": UA(), "Accept-Language": "en" }, signal: AbortSignal.timeout(8000) });
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": UA(),
+          "Referer": "https://github.com/wildcatter-ventures/pg-finder",
+          "Accept-Language": "en",
+        },
+        signal: AbortSignal.timeout(8000),
+      });
       if (!res.ok) throw new Error(`Nominatim HTTP ${res.status}`);
       return (await res.json()) as { lat: string; lon: string; display_name: string }[];
     });
@@ -103,10 +110,14 @@ export async function geocode(place: string, cityHint?: string | null): Promise<
   }
 }
 
-// ───────────────────────── Overpass (OSM hostels / guest houses) ─────────────────────────
+// ───────────────────────── Overpass (OSM hostels / student accommodation) ─────────────────────────
 const OVERPASS_TTL = 24 * 3600 * 1000;
-/** Public Overpass instances, tried in order (the main one is often at capacity). */
-const OVERPASS_MIRRORS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
+/** Public Overpass instances, tried in order */
+const OVERPASS_MIRRORS = [
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+];
 let overpassDownUntil = 0; // circuit breaker after all mirrors fail
 
 export async function overpassHostels(lat: number, lng: number, radius: number): Promise<{ places: OsmPlace[]; cached: boolean; error?: string }> {
@@ -117,7 +128,9 @@ export async function overpassHostels(lat: number, lng: number, radius: number):
   if (hit && Date.now() - hit.at < OVERPASS_TTL) return { places: hit.places, cached: true };
   if (Date.now() < overpassDownUntil) return { places: [], cached: false, error: "Overpass temporarily unavailable (skipping for a few minutes)" };
 
-  const query = `[out:json][timeout:12];(nwr["tourism"~"^(hostel|guest_house)$"](around:${r},${lat},${lng});nwr["amenity"="dormitory"](around:${r},${lat},${lng}););out center 40;`;
+  // Query tourism (hostel, guest_house, apartment), student accommodation, dormitories, and PG name keywords
+  const query = `[out:json][timeout:12];(nwr["tourism"~"^(hostel|guest_house|apartment)$"](around:${r},${lat},${lng});nwr["amenity"~"^(student_accommodation|dormitory)$"](around:${r},${lat},${lng});nwr["building"="dormitory"](around:${r},${lat},${lng});nwr["name"~"PG|P\\.G\\.|paying guest|hostel|ladies|boys|girls|dorm|residency|nest|stay",i](around:${r},${lat},${lng}););out center 40;`;
+
   try {
     type OverpassJson = { elements: { id: number; type: string; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[] };
     let json: OverpassJson | null = null;
@@ -126,40 +139,53 @@ export async function overpassHostels(lat: number, lng: number, radius: number):
       try {
         const res = await fetch(endpoint, {
           method: "POST",
-          headers: { "User-Agent": UA(), "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+          headers: {
+            "User-Agent": UA(),
+            "Referer": "https://github.com/wildcatter-ventures/pg-finder",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
           body: "data=" + encodeURIComponent(query),
-          signal: AbortSignal.timeout(9000),
+          signal: AbortSignal.timeout(6000),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         json = (await res.json()) as OverpassJson;
         break;
       } catch (e) {
-        lastErr = `${new URL(endpoint).host}: ${(e as Error).message}`;
+        lastErr = `${endpoint}: ${(e as Error).message}`;
       }
     }
     if (!json) throw new Error(`all Overpass mirrors failed (${lastErr})`);
-    const places: OsmPlace[] = json.elements
-      .map((el) => {
+    const rawPlaces = json.elements
+      .map((el): OsmPlace | null => {
         const plat = el.lat ?? el.center?.lat;
         const plng = el.lon ?? el.center?.lon;
         if (plat == null || plng == null) return null;
+        const tags = el.tags || {};
+        const phone = tags.phone || tags["contact:phone"] || tags["contact:mobile"] || tags.mobile || null;
+        const website = tags.website || tags["contact:website"] || null;
+        const kind = tags.tourism || tags.amenity || tags.building || "hostel";
         return {
           id: `osm-${el.type}-${el.id}`,
-          name: el.tags?.name || "Unnamed " + (el.tags?.tourism || "hostel").replace("_", " "),
-          kind: el.tags?.tourism || el.tags?.amenity || "hostel",
+          name: tags.name || `Accommodation (${kind.replace("_", " ")})`,
+          kind,
           lat: plat,
           lng: plng,
           distance_m: Math.round(haversine(lat, lng, plat, plng)),
+          phone,
+          website,
+          osm_url: `https://www.openstreetmap.org/${el.type}/${el.id}`,
         };
-      })
-      .filter((p): p is OsmPlace => !!p)
+      });
+    const places: OsmPlace[] = rawPlaces
+      .filter((p): p is OsmPlace => p !== null)
       .sort((a, b) => a.distance_m - b.distance_m);
     overpassCache[key] = { at: Date.now(), places };
     saveCache("overpass.json", overpassCache);
     return { places, cached: false };
   } catch (e) {
     console.warn("[overpass] failed:", (e as Error).message);
-    overpassDownUntil = Date.now() + 5 * 60 * 1000;
+    overpassDownUntil = Date.now() + 3 * 60 * 1000;
     return { places: [], cached: false, error: (e as Error).message };
   }
 }
+

@@ -32,7 +32,7 @@ export const TOOL_DECLARATIONS = [
       {
         name: "search_listings",
         description:
-          "Find PG listings within radius_m of (lat,lng) from the local SAMPLE database using the Haversine formula, plus hostels/guest houses from OpenStreetMap Overpass as a supplement. Returns strict matches and labelled near-misses, plus a relaxation_hint when nothing matches.",
+          "Find real PG, hostel, and student accommodation listings within radius_m of (lat,lng) using live public sources (OpenStreetMap Overpass, Geoapify, and Live Web Discovery). Returns real places with sources, price_status ('listed' or 'unknown'), and distance.",
         parameters: S("OBJECT", undefined, {
           properties: {
             lat: S("NUMBER"),
@@ -41,6 +41,8 @@ export const TOOL_DECLARATIONS = [
             min_price: S("INTEGER", "Minimum monthly rent in Rs", { nullable: true }),
             max_price: S("INTEGER", "Maximum monthly rent in Rs, null for no cap", { nullable: true }),
             gender: S("STRING", "boys / girls / any", { enum: ["boys", "girls", "any"] }),
+            landmark: S("STRING", "Name of landmark for web discovery context", { nullable: true }),
+            city: S("STRING", "City name hint", { nullable: true }),
           },
           required: ["lat", "lng", "radius_m"],
         }),
@@ -48,7 +50,7 @@ export const TOOL_DECLARATIONS = [
       {
         name: "rank_listings",
         description:
-          "Score listings from the most recent search_listings call using weighted factors (price vs budget incl. hidden costs, distance, amenities, reviews, availability by deadline). Returns the top 5 with 'why' and red flags. Pass listing_ids to restrict, or omit to rank all results of the latest search.",
+          "Rank real listings into 'top_match' (known price within budget) and 'worth_asking' (price unknown, contact owner) groups. Never excludes unknown price listings. Returns ranked places with 'why' and distance/walk time.",
         parameters: S("OBJECT", undefined, {
           properties: {
             listing_ids: S("ARRAY", "Optional subset of listing ids", { items: S("STRING") }),
@@ -62,16 +64,24 @@ export const TOOL_DECLARATIONS = [
         }),
       },
       {
-        name: "contact_owner",
-        description: "Send a message to the PG owner (SIMULATED: another AI role-plays the owner). Returns the simulated reply, availability, confirmed rent, visit slots and a real wa.me click-to-chat link.",
+        name: "draft_enquiry",
+        description:
+          "Draft a personalized enquiry message for the student to send to the PG/hostel owner. Returns a message, real wa.me link (if phone exists), tel: link, copy text, and source URL. The student sends it themselves ('Agent drafted it. You send it.').",
         parameters: S("OBJECT", undefined, {
-          properties: { listing_id: S("STRING"), message: S("STRING", "Polite message to the owner") },
-          required: ["listing_id", "message"],
+          properties: {
+            listing_id: S("STRING", "ID of the listing"),
+            move_in_date: S("STRING", "Target move-in date YYYY-MM-DD", { nullable: true }),
+            budget: S("INTEGER", "Monthly budget in INR", { nullable: true }),
+            sharing_preference: S("STRING", "single/double/triple/any", { nullable: true }),
+            gender: S("STRING", "boys/girls/any", { nullable: true }),
+          },
+          required: ["listing_id"],
         }),
       },
       {
         name: "schedule_visit",
-        description: "Create a visit: returns a downloadable .ics calendar file URL and a Google Calendar add-event URL. Only call if the student explicitly gave a time.",
+        description:
+          "Create a proposed visit: returns a downloadable .ics calendar file URL and a Google Calendar add-event URL (proposed, not confirmed by owner). Only call if the student explicitly gave a time.",
         parameters: S("OBJECT", undefined, {
           properties: { listing_id: S("STRING"), datetime: S("STRING", "Local IST time 'YYYY-MM-DDTHH:MM'") },
           required: ["listing_id", "datetime"],

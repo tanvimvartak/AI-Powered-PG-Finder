@@ -5,7 +5,12 @@
 export type Sharing = "single" | "double" | "triple";
 export type Gender = "boys" | "girls" | "any";
 
-/** A PG listing as stored in data/listings.json (all SAMPLE data). */
+export interface ListingSource {
+  name: string; // e.g. "OpenStreetMap", "Geoapify", "MagicBricks", "Housing.com", "Google Maps"
+  url: string;  // Direct URL to listing or source page
+}
+
+/** A PG / student accommodation listing (real or demo). */
 export interface Listing {
   id: string;
   name: string;
@@ -13,26 +18,36 @@ export interface Listing {
   area: string;
   lat: number;
   lng: number;
-  monthly_rent: number;
-  deposit: number;
-  food_included: boolean;
-  sharing_type: Sharing;
+  /** Null if not stated by public source; never invent a price */
+  monthly_rent: number | null;
+  deposit: number | null;
+  food_included: boolean | null;
+  sharing_type: Sharing | null;
   gender: Gender;
   amenities: string[];
-  rating: number;
-  review_snippets: string[];
-  available_from: string; // YYYY-MM-DD
-  extra_charges: { electricity: number; maintenance: number };
-  owner_name: string;
-  owner_phone: string;
-  photos: string[];
-  is_sample: boolean;
+  sources: ListingSource[];
+  last_checked: string;
+  price_status: "listed" | "unknown";
+  verification: "unverified" | "verified";
+  confidence: number;
+  contact_phone?: string | null;
+  website?: string | null;
+  snippet?: string | null;
+  is_sample?: boolean;
+  /** Legacy demo fields (only present if is_sample === true) */
+  rating?: number;
+  review_snippets?: string[];
+  available_from?: string;
+  extra_charges?: { electricity: number; maintenance: number };
+  owner_name?: string;
+  owner_phone?: string;
+  photos?: string[];
 }
 
 /** Listing enriched with search-time info. */
 export interface ListingHit extends Listing {
   distance_m: number;
-  /** "match" = inside radius & budget; "stretch" = slightly over budget; "outside" = slightly outside radius */
+  /** "match" = inside radius & budget (or unknown price inside radius); "stretch" = slightly over budget; "outside" = slightly outside radius */
   fit: "match" | "stretch" | "outside";
 }
 
@@ -44,6 +59,9 @@ export interface OsmPlace {
   lat: number;
   lng: number;
   distance_m: number;
+  phone?: string | null;
+  website?: string | null;
+  osm_url?: string;
 }
 
 export interface Preferences {
@@ -78,13 +96,27 @@ export interface RankedListing {
   rank: number;
   listing: ListingHit;
   score: number; // 0..100
-  effective_monthly_cost: number;
+  effective_monthly_cost: number | null;
   walk_minutes: number;
   why: string;
   red_flags: string[];
   breakdown: Record<string, number>;
+  group: "top_match" | "worth_asking";
 }
 
+/** Pre-drafted enquiry student sends themselves. */
+export interface EnquiryDraft {
+  listing_id: string;
+  listing_name: string;
+  message: string;
+  wa_link: string | null;
+  tel_link: string | null;
+  copy_text: string;
+  phone: string | null;
+  source_url: string | null;
+}
+
+/** Simulated owner reply kept only for DEMO_MODE. */
 export interface OwnerReply {
   listing_id: string;
   simulated: true;
@@ -92,7 +124,7 @@ export interface OwnerReply {
   reply: string;
   available_by_deadline: boolean;
   confirmed_rent: number;
-  visit_slots: string[]; // ISO datetimes (local, no TZ)
+  visit_slots: string[];
   wa_link: string;
 }
 
@@ -101,14 +133,20 @@ export interface VisitPlan {
   datetime: string;
   ics_url: string;
   gcal_url: string;
+  status: "proposed_unconfirmed";
+}
+
+export interface SourceStats {
+  osm: number;
+  geoapify: number;
+  web: number;
+  merged: number;
 }
 
 /** Client → server body for /api/agent */
 export interface AgentRequestBody {
   text: string;
-  /** Values the user edited on the parameter chips; they override the parser. */
   overrides?: Partial<Pick<ParsedRequest, "landmark" | "radius_m" | "max_budget" | "deadline_date">>;
-  /** If true the agent must NOT relax constraints (user rejected a relaxation). */
   strict?: boolean;
 }
 
@@ -118,12 +156,15 @@ export type AgentEvent =
   | { type: "thought"; text: string }
   | { type: "params"; params: ParsedRequest }
   | { type: "location"; point: GeoPoint; radius_m: number }
-  | { type: "listings"; hits: ListingHit[]; osm: OsmPlace[]; radius_m: number; center: { lat: number; lng: number } }
+  | { type: "source_stats"; stats: SourceStats }
+  | { type: "listings"; hits: ListingHit[]; osm: OsmPlace[]; radius_m: number; center: { lat: number; lng: number }; stats?: SourceStats }
   | { type: "relaxation"; kind: "radius" | "budget"; from: number; to: number; message: string }
-  | { type: "ranked"; results: RankedListing[] }
+  | { type: "ranked"; results: RankedListing[]; worth_asking?: RankedListing[] }
+  | { type: "enquiry_draft"; draft: EnquiryDraft }
   | { type: "owner_reply"; reply: OwnerReply }
   | { type: "visit"; plan: VisitPlan }
   | { type: "clarify"; question: string }
   | { type: "final"; text: string }
   | { type: "error"; message: string }
   | { type: "done" };
+

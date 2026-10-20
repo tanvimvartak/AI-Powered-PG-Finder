@@ -20,9 +20,9 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 
 const EXAMPLES = [
   "Please find me a PG accommodation near Mithibai college within 1 km radius. My budget is Rs 5,000 and I need the accommodation in 5 days",
-  "PG near Powai IIT within 2 km, budget 8,000, need it in 3 days",
   "Girls PG near Andheri station, walking distance, under 6k",
-  "Cheapest PG within 5 km of Thane station, by Monday",
+  "PG near Fergusson College Pune within 2 km, budget 8000",
+  "Student PG near Christ University Bengaluru within 1.5 km",
   "Mithibai ke paas 5000 mein PG chahiye",
 ];
 
@@ -45,6 +45,8 @@ export default function Home() {
   const [hits, setHits] = useState<ListingHit[]>([]);
   const [osm, setOsm] = useState<OsmPlace[]>([]);
   const [ranked, setRanked] = useState<RankedListing[]>([]);
+  const [sourceStats, setSourceStats] = useState<{ osm: number; geoapify: number; web: number; merged: number } | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, any>>({});
   const [replies, setReplies] = useState<Record<string, OwnerReply>>({});
   const [contacting, setContacting] = useState<Set<string>>(new Set());
   const [relaxations, setRelaxations] = useState<Relaxation[]>([]);
@@ -96,10 +98,14 @@ export default function Home() {
         setPoint(e.point);
         setRadius(e.radius_m);
         break;
+      case "source_stats":
+        setSourceStats(e.stats);
+        break;
       case "listings":
         setHits(e.hits);
         setOsm(e.osm);
         setRadius(e.radius_m);
+        if (e.stats) setSourceStats(e.stats);
         break;
       case "relaxation":
         setRelaxations((r) => [...r, e]);
@@ -108,6 +114,9 @@ export default function Home() {
         break;
       case "ranked":
         setRanked(e.results);
+        break;
+      case "enquiry_draft":
+        setDrafts((d) => ({ ...d, [e.draft.listing_id]: e.draft }));
         break;
       case "owner_reply":
         setReplies((r) => ({ ...r, [e.reply.listing_id]: e.reply }));
@@ -272,13 +281,21 @@ export default function Home() {
           <p className="mb-2 text-center text-xs tracking-wider text-muted uppercase">Tap to try</p>
           <div className="flex flex-wrap justify-center gap-2">
             {EXAMPLES.map((ex, i) => (
-              <button key={ex} id={`example-${i}`} type="button" onClick={() => setText(ex)} className={`btn-ghost text-left text-xs ${i === 0 ? "border-violet-400/40 bg-violet-500/10" : ""}`}>
+              <button
+                key={ex}
+                id={`example-${i}`}
+                type="button"
+                onClick={() => setText(ex)}
+                className={`btn-ghost text-left text-xs ${i === 0 ? "border-violet-400/40 bg-violet-500/10" : ""}`}
+              >
                 {ex.length > 70 ? ex.slice(0, 68) + "…" : ex}
               </button>
             ))}
           </div>
         </div>
-        <p className="mt-10 text-center text-[11px] text-muted/70">Demo uses sample listings for Mumbai (Vile Parle, Andheri, Powai, Dadar, Thane). Owner replies are simulated.</p>
+        <p className="mt-10 text-center text-[11px] text-muted/70">
+          Listings come from live public sources. Prices and availability are unverified until you confirm with the owner.
+        </p>
       </main>
     );
   }
@@ -396,40 +413,105 @@ export default function Home() {
         {/* RIGHT / BOTTOM: map + results */}
         <div className="order-2 space-y-4">
           <div className="glass relative h-[42vh] min-h-[280px] overflow-hidden p-0 lg:h-[460px]">
-            <MapView center={point} landmark={point?.display_name ?? params?.landmark ?? null} radius_m={radius} hits={hits} osm={osm} budget={budget} rankOf={rankOf} selectedId={selected} onSelect={(id) => { setSelected(id); document.getElementById(`card-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }); }} />
+            <MapView
+              center={point}
+              landmark={point?.display_name ?? params?.landmark ?? null}
+              radius_m={radius}
+              hits={hits}
+              osm={osm}
+              budget={budget}
+              rankOf={rankOf}
+              selectedId={selected}
+              onSelect={(id) => {
+                setSelected(id);
+                document.getElementById(`card-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+            />
             <div className="pointer-events-none absolute right-3 bottom-3 z-[500] flex flex-col gap-1 rounded-xl bg-black/60 p-2 text-[10px] backdrop-blur">
               <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-400" />within budget</span>
               <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-400" />near budget</span>
+              <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-slate-400" />price unknown</span>
               <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-red-400" />over budget</span>
-              <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-slate-500" />OSM (no price)</span>
             </div>
             {hits.length > 0 && (
               <div className="pointer-events-none absolute top-3 left-3 z-[500] chip bg-black/60 backdrop-blur">
-                {hits.length} sample PGs · {(radius / 1000).toFixed(radius % 1000 ? 1 : 0)} km radius
+                {hits.length} live places · {(radius / 1000).toFixed(radius % 1000 ? 1 : 0)} km radius
               </div>
             )}
           </div>
 
-          {/* results */}
+          {/* Data sources chip row */}
+          {hits.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 py-1 text-xs">
+              <span className="text-muted font-medium">Data sources:</span>
+              <span className="rounded-md bg-white/10 px-2 py-0.5 text-slate-300">
+                OSM: <b className="text-white">{sourceStats?.osm ?? hits.filter((h) => h.sources.some((s) => s.name === "OpenStreetMap")).length}</b>
+              </span>
+              <span className="rounded-md bg-white/10 px-2 py-0.5 text-slate-300">
+                Geoapify: <b className="text-white">{sourceStats?.geoapify ?? 0}</b>
+              </span>
+              <span className="rounded-md bg-white/10 px-2 py-0.5 text-slate-300">
+                Live Web: <b className="text-white">{sourceStats?.web ?? hits.filter((h) => h.sources.some((s) => s.name !== "OpenStreetMap" && s.name !== "Geoapify")).length}</b>
+              </span>
+              <span className="rounded-md bg-violet-500/20 text-violet-300 px-2 py-0.5 font-medium border border-violet-500/30">
+                Merged: {sourceStats?.merged ?? hits.length}
+              </span>
+            </div>
+          )}
+
+          {/* Results partitioned by group */}
           {ranked.length > 0 && (
-            <section aria-label="Ranked PGs" className="space-y-3">
+            <section aria-label="Ranked PGs" className="space-y-4">
               <div className="flex items-baseline justify-between">
-                <h2 className="text-lg font-semibold">Top {ranked.length} picks</h2>
-                <span className="text-xs text-muted">ranked by price, distance, reviews, availability &amp; hidden costs</span>
+                <h2 className="text-lg font-semibold text-white">Discovered Accommodations</h2>
+                <span className="text-xs text-muted">live public sources · unverified until confirmed</span>
               </div>
-              {ranked.map((r) => (
-                <ResultCard
-                  key={r.listing.id}
-                  item={r}
-                  reply={replies[r.listing.id]}
-                  contacting={contacting.has(r.listing.id) || (running && Object.keys(replies).length < 3 && r.rank <= 3 && !replies[r.listing.id])}
-                  budget={budget}
-                  deadline={params?.deadline_date ?? null}
-                  selected={selected === r.listing.id}
-                  onSelect={() => setSelected(r.listing.id)}
-                  onReply={(rep) => setReplies((m) => ({ ...m, [rep.listing_id]: rep }))}
-                />
-              ))}
+
+              {/* Top matches with listed prices */}
+              {ranked.filter((r) => r.group === "top_match").length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                    <span>✓</span> Top Matches (Listed Prices Within Budget)
+                  </h3>
+                  {ranked
+                    .filter((r) => r.group === "top_match")
+                    .map((r) => (
+                      <ResultCard
+                        key={r.listing.id}
+                        item={r}
+                        draft={drafts[r.listing.id]}
+                        budget={budget}
+                        deadline={params?.deadline_date ?? null}
+                        selected={selected === r.listing.id}
+                        onSelect={() => setSelected(r.listing.id)}
+                        onDraftUpdate={(d) => setDrafts((prev) => ({ ...prev, [d.listing_id]: d }))}
+                      />
+                    ))}
+                </div>
+              )}
+
+              {/* Worth asking about (unlisted prices) */}
+              {ranked.filter((r) => r.group === "worth_asking").length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                    <span>💬</span> Worth Asking About (Price Unverified — Contact Owner)
+                  </h3>
+                  {ranked
+                    .filter((r) => r.group === "worth_asking")
+                    .map((r) => (
+                      <ResultCard
+                        key={r.listing.id}
+                        item={r}
+                        draft={drafts[r.listing.id]}
+                        budget={budget}
+                        deadline={params?.deadline_date ?? null}
+                        selected={selected === r.listing.id}
+                        onSelect={() => setSelected(r.listing.id)}
+                        onDraftUpdate={(d) => setDrafts((prev) => ({ ...prev, [d.listing_id]: d }))}
+                      />
+                    ))}
+                </div>
+              )}
             </section>
           )}
 
@@ -442,18 +524,26 @@ export default function Home() {
           )}
 
           {showEmpty && (
-            <div className="glass fade-up p-6 text-center">
-              <div className="mb-2 text-3xl">🏚️</div>
-              <h2 className="font-semibold">No matching PGs</h2>
-              <p className="mx-auto mt-1 max-w-md text-sm text-muted">Nothing fits even after relaxing. Try a bigger radius or budget using the chips above, or a different landmark.</p>
+            <div className="glass fade-up p-6 text-center space-y-3">
+              <div className="text-3xl">🔍</div>
+              <h2 className="text-base font-semibold text-white">No Accommodation Found Near "{params?.landmark || "Destination"}"</h2>
+              <p className="mx-auto max-w-md text-xs text-muted leading-relaxed">
+                We searched live across <b>OpenStreetMap Overpass</b>, <b>Geoapify Places</b>, and <b>Live Web Discovery</b>, but found 0 advertised listings within {(radius / 1000).toFixed(1)} km.
+              </p>
+              <div className="rounded-lg bg-black/30 border border-white/10 p-3 max-w-md mx-auto text-left text-xs space-y-1">
+                <div className="font-semibold text-slate-300">Suggestions:</div>
+                <div className="text-muted">• Try expanding the radius to 2 km or 5 km.</div>
+                <div className="text-muted">• Try a nearby railway station or metro hub name.</div>
+                <div className="text-muted">• If your budget was very strict, try removing the budget cap to view all options.</div>
+              </div>
               {params && (
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  <button id="empty-wider" type="button" className="btn-ghost" onClick={() => rerun({ radius_m: Math.min(params.radius_m * 2, 8000) })}>
+                <div className="flex flex-wrap justify-center gap-2 pt-2">
+                  <button id="empty-wider" type="button" className="btn-ghost text-xs" onClick={() => rerun({ radius_m: Math.min(params.radius_m * 2, 8000) })}>
                     Try {(Math.min(params.radius_m * 2, 8000) / 1000).toFixed(1)} km
                   </button>
                   {params.max_budget && (
-                    <button id="empty-budget" type="button" className="btn-ghost" onClick={() => rerun({ max_budget: Math.round((params.max_budget! * 1.5) / 500) * 500 })}>
-                      Try Rs {(Math.round((params.max_budget * 1.5) / 500) * 500).toLocaleString("en-IN")}
+                    <button id="empty-budget" type="button" className="btn-ghost text-xs" onClick={() => rerun({ max_budget: null })}>
+                      View all without budget cap
                     </button>
                   )}
                 </div>
@@ -462,7 +552,11 @@ export default function Home() {
           )}
         </div>
       </div>
-      <footer className="mt-8 pb-4 text-center text-[11px] text-muted/70">All listings are sample data · owner replies are simulated · map © OpenStreetMap contributors</footer>
+      <footer className="mt-8 pb-4 text-center text-[11px] text-muted/70">
+        {hits.some((h) => h.is_sample)
+          ? "DEMO MODE: Sample listings active · map © OpenStreetMap contributors"
+          : "Listings come from live public sources. Prices and availability are unverified until you confirm with the owner. · Map © OpenStreetMap contributors"}
+      </footer>
     </main>
   );
 }
